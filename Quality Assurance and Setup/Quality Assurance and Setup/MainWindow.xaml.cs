@@ -30,5 +30,20 @@ namespace Quality_Assurance_and_Setup {
             }
         }
 
+        private void rbCustomerPC_Checked(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void rbLoanerPC_Checked(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void rbKioskPC_Checked(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void btnBeginProcess_Click(object sender, RoutedEventArgs e) {
+
+        }
     }
 }
