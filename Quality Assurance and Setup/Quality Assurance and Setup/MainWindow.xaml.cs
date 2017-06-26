@@ -23,6 +23,7 @@ namespace Quality_Assurance_and_Setup {
     public partial class MainWindow : Window {
         static bool Is64Bit = Environment.Is64BitOperatingSystem;
         static string ComputerName = Environment.MachineName.ToString();
+        QAType TypeOfQA;
 
         public MainWindow() {
             InitializeComponent();
@@ -33,60 +34,36 @@ namespace Quality_Assurance_and_Setup {
                 lblWindowsVersion.Content =  "32-Bit";
             }
 
-            lblOfficeVersion.Content = findOfficeVersion(Is64Bit);
+            lblOfficeVersion.Content = findOfficeVersion();
         }
-
-        // 32-bit
-        //2007 - HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\12.0\Excel\InstallRoot
-        //2010 - HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\14.0\Excel\InstallRoot
-        //2013 - HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\15.0\Excel\InstallRoot
-        //2016 - HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\16.0\Excel\InstallRoot
-
-        // 64-bit
-        //2007 - HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Office\12.0\Excel\InstallRoot
-        //2010 - HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Office\14.0\Excel\InstallRoot
-        //2013 - HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Office\15.0\Excel\InstallRoot
-        //2016 - HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Office\16.0\Excel\InstallRoot
-        private string findOfficeVersion(bool x64) {
-            //string officeVersion = null;
+        
+        private string findOfficeVersion() {
             string keyString;
 
-            if (x64) {
+            if (Is64Bit) {
                 keyString = "SOFTWARE\\Wow6432Node\\Microsoft\\Office\\";
             } else {
                 keyString = "SOFTWARE\\Microsoft\\Office\\";
             }
-
-            RegistryKey localMachine = Registry.LocalMachine.OpenSubKey(keyString);
-
-            //string versionKey = string.Empty;
-
-            foreach (string key in localMachine.GetSubKeyNames()) {
+            
+            foreach (string key in Registry.LocalMachine.OpenSubKey(keyString).GetSubKeyNames()) {
                 if (key == "12.0") {
-                    //2007
                     if (checkIfNull(keyString + key)) {
                         return "Microsoft Office 2007";
                     }
                 } else if (key == "14.0") {
-                    //2010
                     if (checkIfNull(keyString + key)) {
                         return "Microsoft Office 2010";
                     }
                 } else if (key == "15.0") {
-                    //2013
                     if (checkIfNull(keyString + key)) {
                         return "Microsoft Office 2013";
                     }
                 } else if (key == "16.0") {
-                    //2016
                     if (checkIfNull(keyString + key)) {
                         return "Microsoft Office 2016";
                     }
                 }
-
-                /*if (!string.IsNullOrEmpty(versionKey)) {
-                    break;
-                }*/
             }
 
             return "Office Not Installed";
@@ -101,15 +78,22 @@ namespace Quality_Assurance_and_Setup {
         }
 
         private void rbCustomerPC_Checked(object sender, RoutedEventArgs e) {
-
+            TypeOfQA = QAType.Customer;
+            printQAType();
         }
 
         private void rbLoanerPC_Checked(object sender, RoutedEventArgs e) {
-
+            TypeOfQA = QAType.Loaner;
+            printQAType();
         }
 
         private void rbKioskPC_Checked(object sender, RoutedEventArgs e) {
+            TypeOfQA = QAType.Kiosk;
+            printQAType();
+        }
 
+        private void printQAType() {
+            tblockOutput.Text += TypeOfQA.ToString() + " QA process selected!" + Environment.NewLine;
         }
 
         private void btnBeginProcess_Click(object sender, RoutedEventArgs e) {
