@@ -15,5 +15,7 @@
         <TextBlock x:Name="tblockOutput" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Margin="30,170,0,0" Height="210" Width="480" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" IsEnabled="False" RenderTransformOrigin="0.505,0.643"/>
         <Button x:Name="btnBeginProcess" Content="Begin Process" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="226,116,232,0" Padding="5,0,5,2" IsDefault="True" BorderThickness="1" Height="35" Width="92" Click="btnBeginProcess_Click"/>
         <ProgressBar HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="540" RenderTransformOrigin="1.698,31.776" Margin="0,400,0,0" IsTabStop="False" IsHitTestVisible="False"/>
+        <Label x:Name="OfficeVersionLabel" Content="Office Version: " VerticalAlignment="Top" Margin="190,44,0,0" HorizontalAlignment="Left"/>
+        <Label x:Name="lblOfficeVersion" Content="Version" VerticalAlignment="Top" Margin="302,44,0,0" HorizontalAlignment="Left" RenderTransformOrigin="1.048,1.164"/>
     </Grid>
 </Window>
