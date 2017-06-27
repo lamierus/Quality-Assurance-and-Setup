@@ -23,7 +23,9 @@ namespace Quality_Assurance_and_Setup {
     public partial class MainWindow : Window {
         static bool Is64Bit = Environment.Is64BitOperatingSystem;
         static string ComputerName = Environment.MachineName.ToString();
+
         QAType TypeOfQA;
+        bool IsOfficeInstalled;
 
         public MainWindow() {
             InitializeComponent();
@@ -72,9 +74,9 @@ namespace Quality_Assurance_and_Setup {
         private bool checkIfNull(string keyString) {
             RegistryKey exists = Registry.LocalMachine.OpenSubKey(keyString + "\\Excel\\InstallRoot");
             if (exists == null) {
-                return false;
+                return IsOfficeInstalled = false;
             }
-            return true;
+            return IsOfficeInstalled = true;
         }
 
         private void rbCustomerPC_Checked(object sender, RoutedEventArgs e) {
@@ -97,7 +99,11 @@ namespace Quality_Assurance_and_Setup {
         }
 
         private void btnBeginProcess_Click(object sender, RoutedEventArgs e) {
+            if (!IsOfficeInstalled) {
+                //prompt user to start process to install office, possibly what version
+            } else {
 
+            }
         }
     }
 }
