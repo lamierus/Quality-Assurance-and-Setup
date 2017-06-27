@@ -98,11 +98,12 @@ namespace Quality_Assurance_and_Setup {
         }
 
         private void btnBeginProcess_Click(object sender, RoutedEventArgs e) {
-            if (!IsOfficeInstalled) {
+
+            /*if (!IsOfficeInstalled) {
                 //prompt user to start process to install office, possibly what version
             } else {
 
-            }
+            }*/
         }
     }
 }
