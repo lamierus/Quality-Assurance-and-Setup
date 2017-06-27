@@ -14,7 +14,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Forms;
 using Microsoft.Win32;
-using System.Management;//.Instrumentation;
 
 namespace Quality_Assurance_and_Setup {
     /// <summary>
