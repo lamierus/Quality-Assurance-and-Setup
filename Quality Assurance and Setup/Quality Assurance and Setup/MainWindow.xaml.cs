@@ -23,6 +23,7 @@ namespace Quality_Assurance_and_Setup {
         static bool Is64Bit = Environment.Is64BitOperatingSystem;
         static string ComputerName = Environment.MachineName.ToString();
 
+        QAProcessQueue QAQueue;
         QAType TypeOfQA;
         bool IsOfficeInstalled;
 
@@ -35,7 +36,11 @@ namespace Quality_Assurance_and_Setup {
                 lblWindowsVersion.Content =  "32-Bit";
             }
 
-            lblOfficeVersion.Content = findOfficeVersion();
+            string oVersion;
+            lblOfficeVersion.Content = oVersion = findOfficeVersion();
+            oVersion = oVersion.Substring(oVersion.IndexOf('2'));
+
+            QAQueue = new QAProcessQueue(Is64Bit, int.Parse(oVersion), TypeOfQA);
         }
         
         private string findOfficeVersion() {
@@ -80,30 +85,31 @@ namespace Quality_Assurance_and_Setup {
 
         private void rbCustomerPC_Checked(object sender, RoutedEventArgs e) {
             TypeOfQA = QAType.Customer;
-            printQAType();
+            printLine(TypeOfQA.ToString() + " QA process selected!");
         }
 
         private void rbLoanerPC_Checked(object sender, RoutedEventArgs e) {
             TypeOfQA = QAType.Loaner;
-            printQAType();
+            printLine(TypeOfQA.ToString() + " QA process selected!");
         }
 
         private void rbKioskPC_Checked(object sender, RoutedEventArgs e) {
             TypeOfQA = QAType.Kiosk;
-            printQAType();
+            printLine(TypeOfQA.ToString() + " QA process selected!");
         }
 
-        private void printQAType() {
-            tblockOutput.Text += TypeOfQA.ToString() + " QA process selected!" + Environment.NewLine;
+        public void printLine(string textToPrint) {
+            tblockOutput.Text += textToPrint + Environment.NewLine;
         }
 
         private void btnBeginProcess_Click(object sender, RoutedEventArgs e) {
 
-            /*if (!IsOfficeInstalled) {
+            if (!IsOfficeInstalled) {
+                return;
                 //prompt user to start process to install office, possibly what version
             } else {
-
-            }*/
+                QAQueue.executeQueue(this);
+            }
         }
     }
 }
