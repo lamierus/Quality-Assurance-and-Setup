@@ -32,8 +32,8 @@ namespace Quality_Assurance_and_Setup {
             IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
             shortcut.Arguments = "-show";
 
-            QAProcess StartVPN = new QAProcess("Start VPN",
-                                               "Starts the VPN software for testing purposes");
+            QAProcess processToAdd = new QAProcess("Start VPN",
+                                                   "Starts the VPN software for testing purposes");
             if (!X64) {
                 //32-bit specific
 
@@ -42,7 +42,7 @@ namespace Quality_Assurance_and_Setup {
                 shortcut.WorkingDirectory = @"C:\Program Files\Common Files\Juniper Networks\JamUI";
 
                 //all of these \'s are required for escapes on the " and \ symbols in the command
-                StartVPN.Script = "\"\" \"C:\\Program Files\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
+                processToAdd.Script = "\"\" \"C:\\Program Files\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
             } else {
                 //64-bit specific
 
@@ -50,74 +50,100 @@ namespace Quality_Assurance_and_Setup {
                 shortcut.TargetPath = @"C:\Program Files (x86)\Common Files\Juniper Networks\JamUI\Pulse.exe";
                 shortcut.WorkingDirectory = @"C:\Program Files (x86)\Common Files\Juniper Networks\JamUI";
 
-                StartVPN.Script = "\"\" \"C:\\Program Files (x86)\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
+                processToAdd.Script = "\"\" \"C:\\Program Files (x86)\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
             }
-
             shortcut.Save();
-            ProcessQueue.Add(StartVPN);
-
-            //initialize the Lync process with the standard part --
-            QAProcess StartLync = new QAProcess("Start Lync",
-                                                "Starts up the Lync program on the target PC, to verify that it is functioning");
-            //-- add the correct .exe, depending on the year of the office version
-            if (OfficeVersion >= 2013) {
-                StartLync.Script = "lync.exe";
-            } else {
-                StartLync.Script = "communicator.exe";
-            }
-            ProcessQueue.Add(StartLync);
+            ProcessQueue.Add(processToAdd);
 
             //NON-SPECIFIC
-            //Run TagIT to set the asset tag #
-            QAProcess RunTagIT = new QAProcess("Start TagIT",
-                                               "Run TagIT to set the asset tag #",
-                                               "\"\" \"C:\\Program Files\\Marimba\\AddOns\\TagIT.exe\"");
-            
-            /*
-            ::Remove the superfluous links, incase they were migrated
-            del /f "C:\Users\Public\Desktop\Avaya VPN Client.lnk"
-            del /f "C:\Users\Public\Desktop\MyPassword.lnk"
-            del /f "C:\Users\Public\Desktop\Adobe Reader*.lnk"
-            /*
-            ::merge in the IE security zone and Lync fixes
-            start wscript.exe /e:vbscript ".\QA Scripts\IEHealing.vbs"
-            start regedit.exe /s ".\QA Scripts\Lync Installing Repeat Fix.reg"
-            /*
-            ::Use the VB script to pin a Lync 2010 icon to the taskbar
-            cscript ".\QA Scripts\PinItem.vbs" /taskbar /item:"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Lync\Microsoft Lync 2010.lnk" /q
-            cscript ".\QA Scripts\PinItem.vbs" /taskbar /item:"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Office 2013\Lync 2013.lnk" /q
-            cscript ".\QA Scripts\PinItem.vbs" /taskbar /item:"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Skype for Business 2016.lnk" /q
 
-            /*
-            ::Start Channel Viewer to make sure everything is installed correctly
-            start wscript.exe C:\HP\Scripts\StartChannelViewer.VBS
-            /*
-            ::Start IE to check Favorites and send to the Xerox MPS Portal
-            start iexplore http://mpsportal.pg.com
-            /*
-            ::Open the Old Printer Info text to add the user's default printer
-            explorer C:\Users\Public\Desktop\Printer Info\Old Printer Information.txt
-            /*
-            ::Open the Documents folder to verify transfer of documents
-            explorer C:\Users\%userprofile%\Documents\
-            /*
-            ::Start Certificate Manager to remove the old junos pulse certificate, if required
-            start certmgr.msc
-            /*
-            ::Start Excel to clear any errors on first run
-            start "" "excel.exe" /m
-            /*
-            ::Start Outlook to verify transfer and sync with Exchange
-            start outlook.exe
-            /*
-            ::Run all of the updates
-            start "" "C:\Windows\System32\TuneUp\TuneUp.exe" /RunNowAll
-            */
+            //Run TagIT to set the asset tag #
+            processToAdd = new QAProcess("Start TagIT",
+                                         "Run TagIT to set the asset tag #",
+                                         "\"\" \"C:\\Program Files\\Marimba\\AddOns\\TagIT.exe\"");
+            ProcessQueue.Add(processToAdd);
+
+            //initialize the Lync process with the standard part, then find the correct year case and add the correct .exe,
+            //  while pinning the correct link on the taskbar.
+            processToAdd = new QAProcess("Start Lync",
+                                         "Starts up the Lync program on the target PC, to verify that it is functioning");
+            switch (OfficeVersion) {
+                case 2007:
+                case 2010:
+                    pinToTaskBar(@"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Lync\Microsoft Lync 2010.lnk", true);
+                    processToAdd.Script = "communicator.exe";
+                    break;
+                case 2013:
+                    pinToTaskBar(@"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Office 2013\Lync 2013.lnk", true);
+                    processToAdd.Script = "lync.exe";
+                    break;
+                case 2016:
+                    pinToTaskBar(@"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Skype for Business 2016.lnk", true);
+                    processToAdd.Script = "lync.exe";
+                    break;
+            }
+            ProcessQueue.Add(processToAdd);
+
+            //check for and run the IEHealing script installed on all O&G machines.
+            processToAdd = new QAProcess("Run repair on IE settings",
+                                         "Run repairs on the IE settings, just to verify they are set to the P&G defaults",
+                                         "wscript.exe /e:vbscript \"C:\\swsetup\\IEProductivityPack\\IEHealing\\IEHealing.vbs\"");
+            ProcessQueue.Add(processToAdd);
+
+            //Open Channel Viewer on the PC to verify what apps are installed/failed/licensed and not installed.
+            processToAdd = new QAProcess("Run Channel Viewer",
+                                         "Run Channel Viewer to verify installed apps and fix failed/missing apps",
+                                         @"wscript.exe C:\HP\Scripts\StartChannelViewer.VBS");
+            ProcessQueue.Add(processToAdd);
+
+            //Open Internet Explorer and go to the Managed Print Services Portal
+            processToAdd = new QAProcess("Open MPS Portal",
+                                         "Run IE and navigate to the MPS Portal to install the default printer",
+                                         @"iexplore http://mpsportal.pg.com");
+            ProcessQueue.Add(processToAdd);
+
+            //Open Internet Explorer and go to the Managed Print Services Portal
+            processToAdd = new QAProcess("",
+                                         "",
+                                         "certmgr.msc");
+            ProcessQueue.Add(processToAdd);
+            
+            //
+            processToAdd = new QAProcess("",
+                                         "",
+                                         "\"\" \"excel.exe\" /m");
+            ProcessQueue.Add(processToAdd);
+
+            //
+            processToAdd = new QAProcess("",
+                                         "",
+                                         "outlook.exe");
+            ProcessQueue.Add(processToAdd);
+
+            //
+            processToAdd = new QAProcess("",
+                                         "",
+                                         "\"\" \"C:\\Windows\\System32\\TuneUp\\TuneUp.exe\" /RunNowAll");
+            ProcessQueue.Add(processToAdd);
+
+            //
+            processToAdd = new QAProcess("",
+                                         "",
+                                         @"notepad.exe C:\Users\Public\Desktop\Printer Info\Old Printer Information.txt");
+            ProcessQueue.Add(processToAdd);
+
+            //
+            processToAdd = new QAProcess("",
+                                         "",
+                                         @"explorer.exe C:\Users\%userprofile%\Documents\");
+            ProcessQueue.Add(processToAdd);
 
         }
 
-        private static void PinUnpinTaskBar(string filePath, bool pin) {
-            if (!System.IO.File.Exists(filePath)) throw new System.IO.FileNotFoundException(filePath);
+        private static void pinToTaskBar(string filePath, bool pin) {
+            if (!System.IO.File.Exists(filePath)) {
+                throw new System.IO.FileNotFoundException(filePath);
+            }
 
             // create the shell application object
             Shell shellApplication = new Shell();
@@ -131,7 +157,7 @@ namespace Quality_Assurance_and_Setup {
             FolderItemVerbs verbs = link.Verbs();
             for (int i = 0; i < verbs.Count; i++) {
                 FolderItemVerb verb = verbs.Item(i);
-                string verbName = verb.Name.Replace(@"&", string.Empty).ToLower();
+                string verbName = verb.Name.Replace("&", string.Empty).ToLower();
 
                 if ((pin && verbName.Equals("pin to taskbar")) || (!pin && verbName.Equals("unpin from taskbar"))) {
 
