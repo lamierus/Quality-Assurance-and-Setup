@@ -21,7 +21,7 @@ namespace Quality_Assurance_and_Setup {
             Script = script;
         }
 
-        public bool runScript() {
+        public bool RunScript() {
             Process.Start(Script);
             return true;
         }

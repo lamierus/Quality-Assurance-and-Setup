@@ -11,7 +11,7 @@ namespace Quality_Assurance_and_Setup {
         private List<QAProcess> ProcessQueue = new List<QAProcess>();
         public bool X64 { get;}
         public int OfficeVersion { get; }
-        public QAType typeOfQA { get;}
+        public QAType TypeOfQA { get;}
 
         /*public QAProcessQueue() {
 
@@ -20,39 +20,20 @@ namespace Quality_Assurance_and_Setup {
         public QAProcessQueue(bool is64Bit, int version, QAType QAtoPerform) {
             X64 = is64Bit;
             OfficeVersion = version;
-            typeOfQA = QAtoPerform;
-            initializeFullQueue();
+            TypeOfQA = QAtoPerform;
+            InitializeFullQueue();
         }
 
-        private void initializeFullQueue() {
-
-            object shDesktop = (object)"Desktop";
-            WshShell shell = new WshShell();
-            string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + @"\Pulse Secure.lnk";
-            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
-            shortcut.Arguments = "-show";
-
+        private void InitializeFullQueue() {
             QAProcess processToAdd = new QAProcess("Start VPN",
                                                    "Starts the VPN software for testing purposes");
             if (!X64) {
                 //32-bit specific
-
-                //setting all of the path information for the VPN link to be placed on the desktop
-                shortcut.TargetPath = @"C:\Program Files\Common Files\Juniper Networks\JamUI\Pulse.exe";
-                shortcut.WorkingDirectory = @"C:\Program Files\Common Files\Juniper Networks\JamUI";
-
                 //all of these \'s are required for escapes on the " and \ symbols in the command
                 processToAdd.Script = "\"\" \"C:\\Program Files\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
             } else {
-                //64-bit specific
-
-                //setting all of the path information for the VPN link to be placed on the desktop
-                shortcut.TargetPath = @"C:\Program Files (x86)\Common Files\Juniper Networks\JamUI\Pulse.exe";
-                shortcut.WorkingDirectory = @"C:\Program Files (x86)\Common Files\Juniper Networks\JamUI";
-
                 processToAdd.Script = "\"\" \"C:\\Program Files (x86)\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
             }
-            shortcut.Save();
             ProcessQueue.Add(processToAdd);
 
             //NON-SPECIFIC
@@ -70,15 +51,12 @@ namespace Quality_Assurance_and_Setup {
             switch (OfficeVersion) {
                 case 2007:
                 case 2010:
-                    pinToTaskBar(@"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Lync\Microsoft Lync 2010.lnk", true);
                     processToAdd.Script = "communicator.exe";
                     break;
                 case 2013:
-                    pinToTaskBar(@"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Office 2013\Lync 2013.lnk", true);
                     processToAdd.Script = "lync.exe";
                     break;
                 case 2016:
-                    pinToTaskBar(@"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Skype for Business 2016.lnk", true);
                     processToAdd.Script = "lync.exe";
                     break;
             }
@@ -137,10 +115,66 @@ namespace Quality_Assurance_and_Setup {
                                          "",
                                          @"explorer.exe C:\Users\%userprofile%\Documents\");
             ProcessQueue.Add(processToAdd);
-
         }
 
-        private static void pinToTaskBar(string filePath, bool pin) {
+        public void ExecuteQueue(MainWindow siht) {
+            foreach (QAProcess QAp in ProcessQueue) {
+                try {
+                    if (!QAp.RunScript()) {
+
+                    } else {
+                        
+                    }
+                } catch (Exception ex) {
+                    siht.PrintLine(ex.Message);
+                }
+            }
+
+            object shDesktop = (object)"Desktop";
+            WshShell shell = new WshShell();
+            string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + @"\Pulse Secure.lnk";
+            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
+            shortcut.Arguments = "-show";
+            if (!X64) {
+                //32-bit specific
+                //setting all of the path information for the VPN link to be placed on the desktop
+                shortcut.TargetPath = @"C:\Program Files\Common Files\Juniper Networks\JamUI\Pulse.exe";
+                shortcut.WorkingDirectory = @"C:\Program Files\Common Files\Juniper Networks\JamUI";
+            } else {
+                //64-bit specific
+                //setting all of the path information for the VPN link to be placed on the desktop
+                shortcut.TargetPath = @"C:\Program Files (x86)\Common Files\Juniper Networks\JamUI\Pulse.exe";
+                shortcut.WorkingDirectory = @"C:\Program Files (x86)\Common Files\Juniper Networks\JamUI";
+            }
+            shortcut.Save();
+
+            switch (OfficeVersion) {
+                case 2007:
+                case 2010:
+                    try {
+                        TaskbarPinUnpin(@"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Lync\Microsoft Lync 2010.lnk", true);
+                    } catch (Exception e) {
+                        siht.PrintLine(e.Message);
+                    }
+                    break;
+                case 2013:
+                    try {
+                        TaskbarPinUnpin(@"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Office 2013\Lync 2013.lnk", true);
+                    } catch (Exception e) {
+                        siht.PrintLine(e.Message);
+                    }
+                    break;
+                case 2016:
+                    try {
+                    TaskbarPinUnpin(@"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Skype for Business 2016.lnk", true);
+                    } catch (Exception e) {
+                        siht.PrintLine(e.Message);
+                    }
+                    break;
+            }
+        }
+
+        private static void TaskbarPinUnpin(string filePath, bool pin) {
             if (!System.IO.File.Exists(filePath)) {
                 throw new System.IO.FileNotFoundException(filePath);
             }
@@ -164,23 +198,7 @@ namespace Quality_Assurance_and_Setup {
                     verb.DoIt();
                 }
             }
-
             shellApplication = null;
-        }
-
-
-        public void executeQueue(MainWindow siht) {
-            foreach (QAProcess QAp in ProcessQueue) {
-                try {
-                    if (!QAp.runScript()) {
-
-                    } else {
-                        
-                    }
-                } catch (Exception ex) {
-                    siht.printLine(ex.Message);
-                }
-            }
         }
     }
 }
