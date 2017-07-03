@@ -26,30 +26,32 @@ namespace Quality_Assurance_and_Setup {
         QAProcessQueue QAQueue;
         QAType TypeOfQA;
         bool IsOfficeInstalled;
+        string OfficeVersion;
 
         public MainWindow() {
             InitializeComponent();
-            
+
             if (Is64Bit) {
-                lblWindowsVersion.Content =  "64-Bit";
+                lblWindowsVersion.Content = "64-Bit";
             } else {
-                lblWindowsVersion.Content =  "32-Bit";
+                lblWindowsVersion.Content = "32-Bit";
             }
 
-            string oVersion;
-            lblOfficeVersion.Content = oVersion = FindOfficeVersion();
-            oVersion = oVersion.Substring(oVersion.IndexOf('2'));
-
-            QAQueue = new QAProcessQueue(Is64Bit, int.Parse(oVersion), TypeOfQA);
+            //get the currently installed office version and assign this value to the global OfficeVersion
+            // as well as set the content of the label to the found version string
+            lblOfficeVersion.Content = OfficeVersion = FindOfficeVersion();
+            //extract just the year of the office version from the string as a whole.
+            OfficeVersion = OfficeVersion.Substring(OfficeVersion.IndexOf('2'));
+            rbCustomerPC.IsChecked = true;
         }
         
         private string FindOfficeVersion() {
             string keyString;
 
             if (Is64Bit) {
-                keyString = "SOFTWARE\\Wow6432Node\\Microsoft\\Office\\";
+                keyString = @"SOFTWARE\Wow6432Node\Microsoft\Office\";
             } else {
-                keyString = "SOFTWARE\\Microsoft\\Office\\";
+                keyString = @"SOFTWARE\Microsoft\Office\";
             }
             
             foreach (string key in Registry.LocalMachine.OpenSubKey(keyString).GetSubKeyNames()) {
@@ -71,12 +73,11 @@ namespace Quality_Assurance_and_Setup {
                     }
                 }
             }
-
             return "Office Not Installed";
         }
 
         private bool CheckIfNull(string keyString) {
-            RegistryKey exists = Registry.LocalMachine.OpenSubKey(keyString + "\\Excel\\InstallRoot");
+            RegistryKey exists = Registry.LocalMachine.OpenSubKey(keyString + @"\Excel\InstallRoot");
             if (exists == null) {
                 return IsOfficeInstalled = false;
             }
@@ -86,16 +87,23 @@ namespace Quality_Assurance_and_Setup {
         private void RBCustomerPC_Checked(object sender, RoutedEventArgs e) {
             TypeOfQA = QAType.Customer;
             PrintLine(TypeOfQA.ToString() + " QA process selected!");
+            InitializeQueue();
         }
 
         private void RBLoanerPC_Checked(object sender, RoutedEventArgs e) {
             TypeOfQA = QAType.Loaner;
             PrintLine(TypeOfQA.ToString() + " QA process selected!");
+            InitializeQueue();
         }
 
         private void RBKioskPC_Checked(object sender, RoutedEventArgs e) {
             TypeOfQA = QAType.Kiosk;
             PrintLine(TypeOfQA.ToString() + " QA process selected!");
+            InitializeQueue();
+        }
+
+        private void InitializeQueue() {
+            QAQueue = new QAProcessQueue(Is64Bit, int.Parse(OfficeVersion), TypeOfQA);
         }
 
         public void PrintLine(string textToPrint) {
@@ -105,8 +113,8 @@ namespace Quality_Assurance_and_Setup {
         private void BTNBeginProcess_Click(object sender, RoutedEventArgs e) {
 
             if (!IsOfficeInstalled) {
-                IsOfficeInstalled = true;
                 //prompt user to start process to install office, possibly what version
+                IsOfficeInstalled = true;
             } else {
                 QAQueue.ExecuteQueue(this);
             }

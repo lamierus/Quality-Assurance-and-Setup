@@ -12,21 +12,18 @@ namespace Quality_Assurance_and_Setup {
         public bool X64 { get;}
         public int OfficeVersion { get; }
         public QAType TypeOfQA { get;}
-
-        /*public QAProcessQueue() {
-
-        }*/
-
+        
         public QAProcessQueue(bool is64Bit, int version, QAType QAtoPerform) {
             X64 = is64Bit;
             OfficeVersion = version;
             TypeOfQA = QAtoPerform;
-            InitializeFullQueue();
+            if (TypeOfQA == QAType.Customer)
+                InitializeFullCustomerQueue();
         }
 
-        private void InitializeFullQueue() {
+        private void InitializeFullCustomerQueue() {
             QAProcess processToAdd = new QAProcess("Start VPN",
-                                                   "Starts the VPN software for testing purposes");
+                                                   "Starting the VPN software for testing purposes");
             if (!X64) {
                 //32-bit specific
                 //all of these \'s are required for escapes on the " and \ symbols in the command
@@ -40,14 +37,14 @@ namespace Quality_Assurance_and_Setup {
 
             //Run TagIT to set the asset tag #
             processToAdd = new QAProcess("Start TagIT",
-                                         "Run TagIT to set the asset tag #",
+                                         "Running TagIT to set the asset tag #",
                                          "\"\" \"C:\\Program Files\\Marimba\\AddOns\\TagIT.exe\"");
             ProcessQueue.Add(processToAdd);
 
             //initialize the Lync process with the standard part, then find the correct year case and add the correct .exe,
             //  while pinning the correct link on the taskbar.
             processToAdd = new QAProcess("Start Lync",
-                                         "Starts up the Lync program on the target PC, to verify that it is functioning");
+                                         "Starting up the Lync program on the target PC, to verify that it is functioning");
             switch (OfficeVersion) {
                 case 2007:
                 case 2010:
@@ -61,73 +58,57 @@ namespace Quality_Assurance_and_Setup {
                     break;
             }
             ProcessQueue.Add(processToAdd);
-
-            //check for and run the IEHealing script installed on all O&G machines.
+            
+            //the rest of the processes have the basic idea laid out in the Description line
             processToAdd = new QAProcess("Run repair on IE settings",
-                                         "Run repairs on the IE settings, just to verify they are set to the P&G defaults",
-                                         "wscript.exe /e:vbscript \"C:\\swsetup\\IEProductivityPack\\IEHealing\\IEHealing.vbs\"");
-            ProcessQueue.Add(processToAdd);
-
-            //Open Channel Viewer on the PC to verify what apps are installed/failed/licensed and not installed.
-            processToAdd = new QAProcess("Run Channel Viewer",
-                                         "Run Channel Viewer to verify installed apps and fix failed/missing apps",
-                                         @"wscript.exe C:\HP\Scripts\StartChannelViewer.VBS");
-            ProcessQueue.Add(processToAdd);
-
-            //Open Internet Explorer and go to the Managed Print Services Portal
-            processToAdd = new QAProcess("Open MPS Portal",
-                                         "Run IE and navigate to the MPS Portal to install the default printer",
-                                         @"iexplore http://mpsportal.pg.com");
-            ProcessQueue.Add(processToAdd);
-
-            //Open Internet Explorer and go to the Managed Print Services Portal
-            processToAdd = new QAProcess("",
-                                         "",
-                                         "certmgr.msc");
+                         /*Description*/ "Running repairs on the IE settings, just to verify they are set to the P&G defaults",
+                         /*Script*/      @"wscript.exe /e:vbscript C:\swsetup\IEProductivityPack\IEHealing\IEHealing.vbs");
             ProcessQueue.Add(processToAdd);
             
-            //
-            processToAdd = new QAProcess("",
-                                         "",
-                                         "\"\" \"excel.exe\" /m");
+            processToAdd = new QAProcess("Run Channel Viewer",
+                         /*Description*/ "Running Channel Viewer to verify installed apps and fix failed/missing apps",
+                         /*Script*/      @"wscript.exe C:\HP\Scripts\StartChannelViewer.VBS");
             ProcessQueue.Add(processToAdd);
-
-            //
-            processToAdd = new QAProcess("",
-                                         "",
-                                         "outlook.exe");
+            
+            processToAdd = new QAProcess("Open MPS Portal",
+                         /*Description*/ "Running IE and navigating to the MPS Portal to install the default printer",
+                         /*Script*/      @"iexplore http://mpsportal.pg.com");
             ProcessQueue.Add(processToAdd);
-
-            //
-            processToAdd = new QAProcess("",
-                                         "",
-                                         "\"\" \"C:\\Windows\\System32\\TuneUp\\TuneUp.exe\" /RunNowAll");
+            
+            processToAdd = new QAProcess("Open Certificate Manager",
+                         /*Description*/ "Opening the Certificate Manager to verify that the T# certificate is downloaded, for the VPN",
+                         /*Script*/      "certmgr.msc");
             ProcessQueue.Add(processToAdd);
-
-            //
-            processToAdd = new QAProcess("",
-                                         "",
-                                         @"notepad.exe C:\Users\Public\Desktop\Printer Info\Old Printer Information.txt");
+            
+            processToAdd = new QAProcess("Open Excel",
+                         /*Description*/ "Opening a blank Macro-Enabled Worksheet to preemptively fix an issue with opening other Excel Workbooks",
+                         /*Script*/      "\"\" \"excel.exe\" /m");
             ProcessQueue.Add(processToAdd);
-
-            //
-            processToAdd = new QAProcess("",
-                                         "",
-                                         @"explorer.exe C:\Users\%userprofile%\Documents\");
+            
+            processToAdd = new QAProcess("Open Outlook",
+                         /*Description*/ "Opening Outlook to complete Synchronization of the inbox and add the user's archives, if required",
+                         /*Script*/      "outlook.exe");
+            ProcessQueue.Add(processToAdd);
+            
+            processToAdd = new QAProcess("Run all pending Tuner updates",
+                         /*Description*/ "Running all pending updates through the tuner",
+                         /*Script*/      "\"\" \"C:\\Windows\\System32\\TuneUp\\TuneUp.exe\" /RunNowAll");
+            ProcessQueue.Add(processToAdd);
+            
+            processToAdd = new QAProcess("Open Old Printer Information.txt",
+                         /*Description*/ "Opening the Old Printer Information file for getting the user's default printer information",
+                         /*Script*/      @"notepad.exe C:\Users\Public\Desktop\Printer Info\Old Printer Information.txt");
+            ProcessQueue.Add(processToAdd);
+            
+            processToAdd = new QAProcess("Open documents folder",
+                         /*Description*/ "Opening the documents folder to verify that the user's files transferred over from the old PC",
+                         /*Script*/      @"explorer.exe C:\Users\%userprofile%\Documents\");
             ProcessQueue.Add(processToAdd);
         }
 
         public void ExecuteQueue(MainWindow siht) {
             foreach (QAProcess QAp in ProcessQueue) {
-                try {
-                    if (!QAp.RunScript()) {
-
-                    } else {
-                        
-                    }
-                } catch (Exception ex) {
-                    siht.PrintLine(ex.Message);
-                }
+                siht.PrintLine(QAp.RunScript());
             }
 
             object shDesktop = (object)"Desktop";
