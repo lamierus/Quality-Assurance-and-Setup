@@ -49,9 +49,9 @@ namespace Quality_Assurance_and_Setup {
             string keyString;
 
             if (Is64Bit) {
-                keyString = @"SOFTWARE\Wow6432Node\Microsoft\Office\";
+                keyString = "SOFTWARE\\Wow6432Node\\Microsoft\\Office\\";
             } else {
-                keyString = @"SOFTWARE\Microsoft\Office\";
+                keyString = "SOFTWARE\\Microsoft\\Office\\";
             }
             
             foreach (string key in Registry.LocalMachine.OpenSubKey(keyString).GetSubKeyNames()) {
@@ -77,7 +77,7 @@ namespace Quality_Assurance_and_Setup {
         }
 
         private bool CheckIfNull(string keyString) {
-            RegistryKey exists = Registry.LocalMachine.OpenSubKey(keyString + @"\Excel\InstallRoot");
+            RegistryKey exists = Registry.LocalMachine.OpenSubKey(keyString + "\\Excel\\InstallRoot");
             if (exists == null) {
                 return IsOfficeInstalled = false;
             }
@@ -107,7 +107,7 @@ namespace Quality_Assurance_and_Setup {
         }
 
         public void PrintLine(string textToPrint) {
-            tblockOutput.Text += textToPrint + Environment.NewLine;
+            tboxOutput.Text += textToPrint + Environment.NewLine;
         }
 
         private void BTNBeginProcess_Click(object sender, RoutedEventArgs e) {

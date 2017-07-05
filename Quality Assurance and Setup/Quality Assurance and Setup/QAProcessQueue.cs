@@ -22,6 +22,7 @@ namespace Quality_Assurance_and_Setup {
         }
 
         private void InitializeFullCustomerQueue() {
+            ///
             QAProcess processToAdd = new QAProcess("Start VPN",
                                                    "Starting the VPN software for testing purposes");
             if (!X64) {
@@ -36,6 +37,7 @@ namespace Quality_Assurance_and_Setup {
             //NON-SPECIFIC
 
             //Run TagIT to set the asset tag #
+            ///
             processToAdd = new QAProcess("Start TagIT",
                                          "Running TagIT to set the asset tag #",
                                          "\"\" \"C:\\Program Files\\Marimba\\AddOns\\TagIT.exe\"");
@@ -46,33 +48,32 @@ namespace Quality_Assurance_and_Setup {
             processToAdd = new QAProcess("Start Lync",
                                          "Starting up the Lync program on the target PC, to verify that it is functioning");
             switch (OfficeVersion) {
-                case 2007:
-                case 2010:
-                    processToAdd.Script = "communicator.exe";
-                    break;
                 case 2013:
-                    processToAdd.Script = "lync.exe";
-                    break;
                 case 2016:
                     processToAdd.Script = "lync.exe";
                     break;
+                default: // 2007 or 2010
+                    processToAdd.Script = "communicator.exe";
+                    break;
+                
             }
             ProcessQueue.Add(processToAdd);
             
             //the rest of the processes have the basic idea laid out in the Description line
+            ///
             processToAdd = new QAProcess("Run repair on IE settings",
                          /*Description*/ "Running repairs on the IE settings, just to verify they are set to the P&G defaults",
-                         /*Script*/      @"wscript.exe /e:vbscript C:\swsetup\IEProductivityPack\IEHealing\IEHealing.vbs");
+                         /*Script*/      "wscript.exe C:\\swsetup\\IEProductivityPack\\IEHealing\\IEHealing.vbs");
             ProcessQueue.Add(processToAdd);
             
             processToAdd = new QAProcess("Run Channel Viewer",
                          /*Description*/ "Running Channel Viewer to verify installed apps and fix failed/missing apps",
-                         /*Script*/      @"wscript.exe C:\HP\Scripts\StartChannelViewer.VBS");
+                         /*Script*/      "wscript.exe C:\\HP\\Scripts\\StartChannelViewer.VBS");
             ProcessQueue.Add(processToAdd);
             
             processToAdd = new QAProcess("Open MPS Portal",
                          /*Description*/ "Running IE and navigating to the MPS Portal to install the default printer",
-                         /*Script*/      @"iexplore http://mpsportal.pg.com");
+                         /*Script*/      "iexplore.exe http://mpsportal.pg.com");
             ProcessQueue.Add(processToAdd);
             
             processToAdd = new QAProcess("Open Certificate Manager",
@@ -82,7 +83,7 @@ namespace Quality_Assurance_and_Setup {
             
             processToAdd = new QAProcess("Open Excel",
                          /*Description*/ "Opening a blank Macro-Enabled Worksheet to preemptively fix an issue with opening other Excel Workbooks",
-                         /*Script*/      "\"\" \"excel.exe\" /m");
+                         /*Script*/      "excel.exe /m");
             ProcessQueue.Add(processToAdd);
             
             processToAdd = new QAProcess("Open Outlook",
@@ -92,17 +93,18 @@ namespace Quality_Assurance_and_Setup {
             
             processToAdd = new QAProcess("Run all pending Tuner updates",
                          /*Description*/ "Running all pending updates through the tuner",
-                         /*Script*/      "\"\" \"C:\\Windows\\System32\\TuneUp\\TuneUp.exe\" /RunNowAll");
+                         /*Script*/      "C:\\Windows\\System32\\TuneUp\\TuneUp.exe /RunNowAll");
             ProcessQueue.Add(processToAdd);
             
             processToAdd = new QAProcess("Open Old Printer Information.txt",
                          /*Description*/ "Opening the Old Printer Information file for getting the user's default printer information",
-                         /*Script*/      @"notepad.exe C:\Users\Public\Desktop\Printer Info\Old Printer Information.txt");
+                         /*Script*/      "notepad.exe C:\\Users\\Public\\Desktop\\Printer Info\\Old Printer Information.txt");
             ProcessQueue.Add(processToAdd);
-            
+
+            string userDocs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             processToAdd = new QAProcess("Open documents folder",
                          /*Description*/ "Opening the documents folder to verify that the user's files transferred over from the old PC",
-                         /*Script*/      @"explorer.exe C:\Users\%userprofile%\Documents\");
+                         /*Script*/      "explorer.exe " + userDocs);
             ProcessQueue.Add(processToAdd);
         }
 
@@ -113,19 +115,19 @@ namespace Quality_Assurance_and_Setup {
 
             object shDesktop = (object)"Desktop";
             WshShell shell = new WshShell();
-            string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + @"\Pulse Secure.lnk";
+            string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + "\\Pulse Secure.lnk";
             IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
             shortcut.Arguments = "-show";
             if (!X64) {
                 //32-bit specific
                 //setting all of the path information for the VPN link to be placed on the desktop
-                shortcut.TargetPath = @"C:\Program Files\Common Files\Juniper Networks\JamUI\Pulse.exe";
-                shortcut.WorkingDirectory = @"C:\Program Files\Common Files\Juniper Networks\JamUI";
+                shortcut.TargetPath = "C:\\Program Files\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe";
+                shortcut.WorkingDirectory = "C:\\Program Files\\Common Files\\Juniper Networks\\JamUI";
             } else {
                 //64-bit specific
                 //setting all of the path information for the VPN link to be placed on the desktop
-                shortcut.TargetPath = @"C:\Program Files (x86)\Common Files\Juniper Networks\JamUI\Pulse.exe";
-                shortcut.WorkingDirectory = @"C:\Program Files (x86)\Common Files\Juniper Networks\JamUI";
+                shortcut.TargetPath = "C:\\Program Files (x86)\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe";
+                shortcut.WorkingDirectory = "C:\\Program Files (x86)\\Common Files\\Juniper Networks\\JamUI";
             }
             shortcut.Save();
 
@@ -133,21 +135,21 @@ namespace Quality_Assurance_and_Setup {
                 case 2007:
                 case 2010:
                     try {
-                        TaskbarPinUnpin(@"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Lync\Microsoft Lync 2010.lnk", true);
+                        TaskbarPinUnpin("C:\\Program Data\\Microsoft\\Windows\\Start Menu\\Programs\\Microsoft Lync\\Microsoft Lync 2010.lnk", true);
                     } catch (Exception e) {
                         siht.PrintLine(e.Message);
                     }
                     break;
                 case 2013:
                     try {
-                        TaskbarPinUnpin(@"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Office 2013\Lync 2013.lnk", true);
+                        TaskbarPinUnpin("C:\\Program Data\\Microsoft\\Windows\\Start Menu\\Programs\\Microsoft Office 2013\\Lync 2013.lnk", true);
                     } catch (Exception e) {
                         siht.PrintLine(e.Message);
                     }
                     break;
                 case 2016:
                     try {
-                    TaskbarPinUnpin(@"%ProgramData%\Microsoft\Windows\Start Menu\Programs\Skype for Business 2016.lnk", true);
+                    TaskbarPinUnpin("C:\\Program Data\\Microsoft\\Windows\\Start Menu\\Programs\\Skype for Business 2016.lnk", true);
                     } catch (Exception e) {
                         siht.PrintLine(e.Message);
                     }
