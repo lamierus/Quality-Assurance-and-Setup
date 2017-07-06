@@ -46,39 +46,40 @@ namespace Quality_Assurance_and_Setup {
         }
         
         private string FindOfficeVersion() {
-            string keyString;
+            string returnString = "Office Not Installed";
+            //string keyString;
 
-            if (Is64Bit) {
-                keyString = "SOFTWARE\\Wow6432Node\\Microsoft\\Office\\";
-            } else {
-                keyString = "SOFTWARE\\Microsoft\\Office\\";
-            }
-            
-            foreach (string key in Registry.LocalMachine.OpenSubKey(keyString).GetSubKeyNames()) {
+            //if (Is64Bit) {
+                string x64KeyString = "SOFTWARE\\Wow6432Node\\Microsoft\\Office\\";
+            //} else {
+                string x86KeyString = "SOFTWARE\\Microsoft\\Office\\";
+            //}
+            //x86string.Union(x64string)?
+            //foreach (string key in Registry.LocalMachine.OpenSubKey(keyString).GetSubKeyNames()) {
+            foreach (string key in Registry.LocalMachine.OpenSubKey(x64KeyString).GetSubKeyNames().Union(Registry.LocalMachine.OpenSubKey(x86KeyString).GetSubKeyNames())) {
                 if (key == "12.0") {
-                    if (CheckIfNull(keyString + key)) {
-                        return "Microsoft Office 2007";
+                    if (CheckIfNull(x86KeyString + key) || CheckIfNull(x64KeyString + key)) {
+                        returnString = "Microsoft Office 2007";
                     }
                 } else if (key == "14.0") {
-                    if (CheckIfNull(keyString + key)) {
-                        return "Microsoft Office 2010";
+                    if (CheckIfNull(x86KeyString + key) || CheckIfNull(x64KeyString + key)) {
+                        returnString = "Microsoft Office 2010";
                     }
                 } else if (key == "15.0") {
-                    if (CheckIfNull(keyString + key)) {
-                        return "Microsoft Office 2013";
+                    if (CheckIfNull(x86KeyString + key) || CheckIfNull(x64KeyString + key)) {
+                        returnString = "Microsoft Office 2013";
                     }
                 } else if (key == "16.0") {
-                    if (CheckIfNull(keyString + key)) {
-                        return "Microsoft Office 2016";
+                    if (CheckIfNull(x86KeyString + key) || CheckIfNull(x64KeyString + key)) {
+                        returnString = "Microsoft Office 2016";
                     }
                 }
             }
-            return "Office Not Installed";
+            return returnString;
         }
 
-        private bool CheckIfNull(string keyString) {
-            RegistryKey exists = Registry.LocalMachine.OpenSubKey(keyString + "\\Excel\\InstallRoot");
-            if (exists == null) {
+        private bool CheckIfNull(string fullKeyString) {
+            if (Registry.LocalMachine.OpenSubKey(fullKeyString + "\\Excel\\InstallRoot") == null) {
                 return IsOfficeInstalled = false;
             }
             return IsOfficeInstalled = true;

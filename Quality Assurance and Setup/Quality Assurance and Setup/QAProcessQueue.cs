@@ -35,14 +35,13 @@ namespace Quality_Assurance_and_Setup {
             ProcessQueue.Add(processToAdd);
 
             //NON-SPECIFIC
-
+            /*
             //Run TagIT to set the asset tag #
-            ///
             processToAdd = new QAProcess("Start TagIT",
                                          "Running TagIT to set the asset tag #",
                                          "\"\" \"C:\\Program Files\\Marimba\\AddOns\\TagIT.exe\"");
             ProcessQueue.Add(processToAdd);
-
+            /*
             //initialize the Lync process with the standard part, then find the correct year case and add the correct .exe,
             //  while pinning the correct link on the taskbar.
             processToAdd = new QAProcess("Start Lync",
@@ -58,54 +57,54 @@ namespace Quality_Assurance_and_Setup {
                 
             }
             ProcessQueue.Add(processToAdd);
-            
+            /*
             //the rest of the processes have the basic idea laid out in the Description line
-            ///
             processToAdd = new QAProcess("Run repair on IE settings",
-                         /*Description*/ "Running repairs on the IE settings, just to verify they are set to the P&G defaults",
-                         /*Script*/      "wscript.exe C:\\swsetup\\IEProductivityPack\\IEHealing\\IEHealing.vbs");
+                                         "Running repairs on the IE settings, just to verify they are set to the P&G defaults", //description
+                                         "wscript.exe C:\\swsetup\\IEProductivityPack\\IEHealing\\IEHealing.vbs");              //script
             ProcessQueue.Add(processToAdd);
             
             processToAdd = new QAProcess("Run Channel Viewer",
-                         /*Description*/ "Running Channel Viewer to verify installed apps and fix failed/missing apps",
-                         /*Script*/      "wscript.exe C:\\HP\\Scripts\\StartChannelViewer.VBS");
+                                         "Running Channel Viewer to verify installed apps and fix failed/missing apps",
+                                         "wscript.exe C:\\HP\\Scripts\\StartChannelViewer.VBS");
             ProcessQueue.Add(processToAdd);
             
             processToAdd = new QAProcess("Open MPS Portal",
-                         /*Description*/ "Running IE and navigating to the MPS Portal to install the default printer",
-                         /*Script*/      "iexplore.exe http://mpsportal.pg.com");
+                                         "Running IE and navigating to the MPS Portal to install the default printer",
+                                         "iexplore.exe http://mpsportal.pg.com");
             ProcessQueue.Add(processToAdd);
             
             processToAdd = new QAProcess("Open Certificate Manager",
-                         /*Description*/ "Opening the Certificate Manager to verify that the T# certificate is downloaded, for the VPN",
-                         /*Script*/      "certmgr.msc");
+                                         "Opening the Certificate Manager to verify that the T# certificate is downloaded, for the VPN",
+                                         "certmgr.msc");
             ProcessQueue.Add(processToAdd);
             
             processToAdd = new QAProcess("Open Excel",
-                         /*Description*/ "Opening a blank Macro-Enabled Worksheet to preemptively fix an issue with opening other Excel Workbooks",
-                         /*Script*/      "excel.exe /m");
+                                         "Opening a blank Macro-Enabled Worksheet to preemptively fix an issue with opening other Excel Workbooks",
+                                         "excel.exe /m");
             ProcessQueue.Add(processToAdd);
             
             processToAdd = new QAProcess("Open Outlook",
-                         /*Description*/ "Opening Outlook to complete Synchronization of the inbox and add the user's archives, if required",
-                         /*Script*/      "outlook.exe");
+                                         "Opening Outlook to complete Synchronization of the inbox and add the user's archives, if required",
+                                         "outlook.exe");
             ProcessQueue.Add(processToAdd);
             
             processToAdd = new QAProcess("Run all pending Tuner updates",
-                         /*Description*/ "Running all pending updates through the tuner",
-                         /*Script*/      "C:\\Windows\\System32\\TuneUp\\TuneUp.exe /RunNowAll");
+                                         "Running all pending updates through the tuner",
+                                         "C:\\Windows\\System32\\TuneUp\\TuneUp.exe /RunNowAll");
             ProcessQueue.Add(processToAdd);
             
             processToAdd = new QAProcess("Open Old Printer Information.txt",
-                         /*Description*/ "Opening the Old Printer Information file for getting the user's default printer information",
-                         /*Script*/      "notepad.exe C:\\Users\\Public\\Desktop\\Printer Info\\Old Printer Information.txt");
+                                         "Opening the Old Printer Information file for getting the user's default printer information",
+                                         "notepad.exe C:\\Users\\Public\\Desktop\\Printer Info\\Old Printer Information.txt");
             ProcessQueue.Add(processToAdd);
 
             string userDocs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             processToAdd = new QAProcess("Open documents folder",
-                         /*Description*/ "Opening the documents folder to verify that the user's files transferred over from the old PC",
-                         /*Script*/      "explorer.exe " + userDocs);
+                                         "Opening the documents folder to verify that the user's files transferred over from the old PC",
+                                         "explorer.exe " + userDocs);
             ProcessQueue.Add(processToAdd);
+            */
         }
 
         public void ExecuteQueue(MainWindow siht) {
@@ -131,25 +130,26 @@ namespace Quality_Assurance_and_Setup {
             }
             shortcut.Save();
 
+            string linkPath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\";
             switch (OfficeVersion) {
                 case 2007:
                 case 2010:
                     try {
-                        TaskbarPinUnpin("C:\\Program Data\\Microsoft\\Windows\\Start Menu\\Programs\\Microsoft Lync\\Microsoft Lync 2010.lnk", true);
+                        TaskbarPinUnpin(linkPath + "Microsoft Lync\\", "Microsoft Lync 2010.lnk", true);
                     } catch (Exception e) {
                         siht.PrintLine(e.Message);
                     }
                     break;
                 case 2013:
                     try {
-                        TaskbarPinUnpin("C:\\Program Data\\Microsoft\\Windows\\Start Menu\\Programs\\Microsoft Office 2013\\Lync 2013.lnk", true);
+                        TaskbarPinUnpin(linkPath + "Microsoft Office 2013\\", "Lync 2013.lnk", true);
                     } catch (Exception e) {
                         siht.PrintLine(e.Message);
                     }
                     break;
                 case 2016:
                     try {
-                    TaskbarPinUnpin("C:\\Program Data\\Microsoft\\Windows\\Start Menu\\Programs\\Skype for Business 2016.lnk", true);
+                    TaskbarPinUnpin(linkPath, "Skype for Business 2016.lnk", true);
                     } catch (Exception e) {
                         siht.PrintLine(e.Message);
                     }
@@ -157,18 +157,18 @@ namespace Quality_Assurance_and_Setup {
             }
         }
 
-        private static void TaskbarPinUnpin(string filePath, bool pin) {
-            if (!System.IO.File.Exists(filePath)) {
-                throw new System.IO.FileNotFoundException(filePath);
+        private static void TaskbarPinUnpin(string filePath, string fileName, bool pin) {
+            if (!System.IO.File.Exists(filePath + fileName)) {
+                throw new System.IO.FileNotFoundException(filePath + fileName);
             }
 
             // create the shell application object
             Shell shellApplication = new Shell();
 
-            string path = System.IO.Path.GetDirectoryName(filePath);
-            string fileName = System.IO.Path.GetFileName(filePath);
+            //string path = System.IO.Path.GetDirectoryName(filePath);
+            //string fileName = System.IO.Path.GetFileName(filePath);
 
-            Shell32.Folder directory = shellApplication.NameSpace(path);
+            Shell32.Folder directory = shellApplication.NameSpace(filePath);
             FolderItem link = directory.ParseName(fileName);
 
             FolderItemVerbs verbs = link.Verbs();

@@ -20,7 +20,7 @@ namespace Quality_Assurance_and_Setup {
 
         public string RunScript() {
             try {
-                //Process.Start(Script);
+                Process.Start(Script);
                 return Description;
             } catch (Exception e){
                 return Description + Environment.NewLine + "Error! - " + e.Message;
