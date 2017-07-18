@@ -54,7 +54,7 @@ namespace Quality_Assurance_and_Setup {
             //} else {
                 string x86KeyString = "SOFTWARE\\Microsoft\\Office\\";
             //}
-            //x86string.Union(x64string)?
+
             //foreach (string key in Registry.LocalMachine.OpenSubKey(keyString).GetSubKeyNames()) {
             foreach (string key in Registry.LocalMachine.OpenSubKey(x64KeyString).GetSubKeyNames().Union(Registry.LocalMachine.OpenSubKey(x86KeyString).GetSubKeyNames())) {
                 if (key == "12.0") {

@@ -112,6 +112,7 @@ namespace Quality_Assurance_and_Setup {
                 siht.PrintLine(QAp.RunScript());
             }
 
+            siht.PrintLine("Adding Pulse Secure shortcut to the desktop.");
             object shDesktop = (object)"Desktop";
             WshShell shell = new WshShell();
             string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + "\\Pulse Secure.lnk";
@@ -130,6 +131,7 @@ namespace Quality_Assurance_and_Setup {
             }
             shortcut.Save();
 
+            siht.PrintLine("Pinning Lync shortcut to the taskbar.");
             string linkPath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\";
             switch (OfficeVersion) {
                 case 2007:
@@ -149,7 +151,7 @@ namespace Quality_Assurance_and_Setup {
                     break;
                 case 2016:
                     try {
-                    TaskbarPinUnpin(linkPath, "Skype for Business 2016.lnk", true);
+                        TaskbarPinUnpin(linkPath, "Skype for Business 2016.lnk", true);
                     } catch (Exception e) {
                         siht.PrintLine(e.Message);
                     }
@@ -175,9 +177,7 @@ namespace Quality_Assurance_and_Setup {
             for (int i = 0; i < verbs.Count; i++) {
                 FolderItemVerb verb = verbs.Item(i);
                 string verbName = verb.Name.Replace("&", string.Empty).ToLower();
-
                 if ((pin && verbName.Equals("pin to taskbar")) || (!pin && verbName.Equals("unpin from taskbar"))) {
-
                     verb.DoIt();
                 }
             }
