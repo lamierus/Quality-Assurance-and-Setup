@@ -22,15 +22,16 @@ namespace Quality_Assurance_and_Setup {
         }
 
         private void InitializeFullCustomerQueue() {
-            ///
+            //
             QAProcess processToAdd = new QAProcess("Start VPN",
                                                    "Starting the VPN software for testing purposes");
             if (!X64) {
                 //32-bit specific
                 //all of these \'s are required for escapes on the " and \ symbols in the command
-                processToAdd.Script = "\"\" \"C:\\Program Files\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
+                processToAdd.Script = "\"VPN\" \"C:\\Program Files\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
             } else {
-                processToAdd.Script = "\"\" \"C:\\Program Files (x86)\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
+                //processToAdd.Script = "\"\" \"C:\\Program Files (x86)\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
+                processToAdd.Script = "/I /D \"C:\\Program Files (x86)\\Common Files\\Juniper Networks\\JamUI\\\" Pulse.exe -show";
             }
             ProcessQueue.Add(processToAdd);
 
@@ -137,21 +138,21 @@ namespace Quality_Assurance_and_Setup {
                 case 2007:
                 case 2010:
                     try {
-                        TaskbarPinUnpin(linkPath + "Microsoft Lync\\", "Microsoft Lync 2010.lnk", true);
+                        TaskbarPinUnpin(linkPath + "Microsoft Lync\\", "Microsoft Lync 2010.lnk", true, siht);
                     } catch (Exception e) {
                         siht.PrintLine(e.Message);
                     }
                     break;
                 case 2013:
                     try {
-                        TaskbarPinUnpin(linkPath + "Microsoft Office 2013\\", "Lync 2013.lnk", true);
+                        TaskbarPinUnpin(linkPath + "Microsoft Office 2013\\", "Lync 2013.lnk", true, siht);
                     } catch (Exception e) {
                         siht.PrintLine(e.Message);
                     }
                     break;
                 case 2016:
                     try {
-                        TaskbarPinUnpin(linkPath, "Skype for Business 2016.lnk", true);
+                        TaskbarPinUnpin(linkPath, "Skype for Business 2016.lnk", true, siht);
                     } catch (Exception e) {
                         siht.PrintLine(e.Message);
                     }
@@ -159,21 +160,19 @@ namespace Quality_Assurance_and_Setup {
             }
         }
 
-        private static void TaskbarPinUnpin(string filePath, string fileName, bool pin) {
+        private static void TaskbarPinUnpin(string filePath, string fileName, bool pin, MainWindow siht) {
             if (!System.IO.File.Exists(filePath + fileName)) {
                 throw new System.IO.FileNotFoundException(filePath + fileName);
             }
-
+            
             // create the shell application object
-            Shell shellApplication = new Shell();
+            dynamic shellApplication = Activator.CreateInstance(Type.GetTypeFromProgID("Shell.Application"));
+                        
+            dynamic directory = shellApplication.NameSpace(filePath);
+            dynamic link = directory.ParseName(fileName);
 
-            //string path = System.IO.Path.GetDirectoryName(filePath);
-            //string fileName = System.IO.Path.GetFileName(filePath);
-
-            Shell32.Folder directory = shellApplication.NameSpace(filePath);
-            FolderItem link = directory.ParseName(fileName);
-
-            FolderItemVerbs verbs = link.Verbs();
+            //FolderItemVerbs verbs = link.Verbs();
+            dynamic verbs = link.Verbs();
             for (int i = 0; i < verbs.Count; i++) {
                 FolderItemVerb verb = verbs.Item(i);
                 string verbName = verb.Name.Replace("&", string.Empty).ToLower();

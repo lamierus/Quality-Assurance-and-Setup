@@ -113,12 +113,12 @@ namespace Quality_Assurance_and_Setup {
 
         private void BTNBeginProcess_Click(object sender, RoutedEventArgs e) {
 
-            if (!IsOfficeInstalled) {
+            //if (!IsOfficeInstalled) {
                 //prompt user to start process to install office, possibly what version
-                IsOfficeInstalled = true;
-            } else {
+                //IsOfficeInstalled = true;
+            //} else {
                 QAQueue.ExecuteQueue(this);
-            }
+            //}
         }
     }
 }
