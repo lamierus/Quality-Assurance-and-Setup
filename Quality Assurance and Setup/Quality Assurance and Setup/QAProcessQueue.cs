@@ -28,10 +28,10 @@ namespace Quality_Assurance_and_Setup {
             if (!X64) {
                 //32-bit specific
                 //all of these \'s are required for escapes on the " and \ symbols in the command
-                processToAdd.Script = "\"VPN\" \"C:\\Program Files\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
+                processToAdd.Script = "\"\" \"C:\\Program Files\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
             } else {
                 //processToAdd.Script = "\"\" \"C:\\Program Files (x86)\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
-                processToAdd.Script = "/I /D \"C:\\Program Files (x86)\\Common Files\\Juniper Networks\\JamUI\\\" Pulse.exe -show";
+                processToAdd.Script = "/I /D" +  @"C:\Program Files (x86)\Common Files\Juniper Networks\JamUI\" + " Pulse.exe -show";
             }
             ProcessQueue.Add(processToAdd);
 

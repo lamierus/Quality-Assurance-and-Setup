@@ -47,42 +47,29 @@ namespace Quality_Assurance_and_Setup {
         
         private string FindOfficeVersion() {
             string returnString = "Office Not Installed";
-            //string keyString;
 
-            //if (Is64Bit) {
-                string x64KeyString = "SOFTWARE\\Wow6432Node\\Microsoft\\Office\\";
-            //} else {
-                string x86KeyString = "SOFTWARE\\Microsoft\\Office\\";
-            //}
-
-            //foreach (string key in Registry.LocalMachine.OpenSubKey(keyString).GetSubKeyNames()) {
-            foreach (string key in Registry.LocalMachine.OpenSubKey(x64KeyString).GetSubKeyNames().Union(Registry.LocalMachine.OpenSubKey(x86KeyString).GetSubKeyNames())) {
-                if (key == "12.0") {
-                    if (CheckIfNull(x86KeyString + key) || CheckIfNull(x64KeyString + key)) {
-                        returnString = "Microsoft Office 2007";
-                    }
-                } else if (key == "14.0") {
-                    if (CheckIfNull(x86KeyString + key) || CheckIfNull(x64KeyString + key)) {
-                        returnString = "Microsoft Office 2010";
-                    }
-                } else if (key == "15.0") {
-                    if (CheckIfNull(x86KeyString + key) || CheckIfNull(x64KeyString + key)) {
-                        returnString = "Microsoft Office 2013";
-                    }
-                } else if (key == "16.0") {
-                    if (CheckIfNull(x86KeyString + key) || CheckIfNull(x64KeyString + key)) {
-                        returnString = "Microsoft Office 2016";
-                    }
-                }
+            RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\excel.exe");
+            if (key == null) {
+                IsOfficeInstalled = false;
+            } else {
+                IsOfficeInstalled = true;
             }
+
+            string oVersion = key.GetValue("Path").ToString();
+            if (oVersion.Contains("Office12")) {
+                returnString = "Microsoft Office 2007";
+            } 
+            else if (oVersion.Contains("Office14")) {
+                returnString = "Microsoft Office 2010";
+            } 
+            else if (oVersion.Contains("Office15")) {
+                returnString = "Microsoft Office 2013";
+            } 
+            else if (oVersion.Contains("Office16")) {
+                returnString = "Microsoft Office 2016";
+            }
+
             return returnString;
-        }
-
-        private bool CheckIfNull(string fullKeyString) {
-            if (Registry.LocalMachine.OpenSubKey(fullKeyString + "\\Excel\\InstallRoot") == null) {
-                return IsOfficeInstalled = false;
-            }
-            return IsOfficeInstalled = true;
         }
 
         private void RBCustomerPC_Checked(object sender, RoutedEventArgs e) {
@@ -113,12 +100,12 @@ namespace Quality_Assurance_and_Setup {
 
         private void BTNBeginProcess_Click(object sender, RoutedEventArgs e) {
 
-            //if (!IsOfficeInstalled) {
+            if (!IsOfficeInstalled) {
                 //prompt user to start process to install office, possibly what version
-                //IsOfficeInstalled = true;
-            //} else {
+                IsOfficeInstalled = true;
+            } else {
                 QAQueue.ExecuteQueue(this);
-            //}
+            }
         }
     }
 }
