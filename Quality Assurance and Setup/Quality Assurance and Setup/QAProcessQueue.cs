@@ -22,27 +22,25 @@ namespace Quality_Assurance_and_Setup {
         }
 
         private void InitializeFullCustomerQueue() {
-            //
             QAProcess processToAdd = new QAProcess("Start VPN",
                                                    "Starting the VPN software for testing purposes");
             if (!X64) {
                 //32-bit specific
-                //all of these \'s are required for escapes on the " and \ symbols in the command
-                processToAdd.Script = "\"\" \"C:\\Program Files\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
+                processToAdd.App = @"C:\Program Files\Common Files\Juniper Networks\JamUI\Pulse.exe";
+                processToAdd.Arguments = "-show";
             } else {
-                //processToAdd.Script = "\"\" \"C:\\Program Files (x86)\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe\" -show";
-                processToAdd.Script = "/I /D" +  @"C:\Program Files (x86)\Common Files\Juniper Networks\JamUI\" + " Pulse.exe -show";
+                //64-bit specific
+                processToAdd.App = @"C:\Program Files (x86)\Common Files\Juniper Networks\JamUI\Pulse.exe";
+                processToAdd.Arguments = "-show";
             }
             ProcessQueue.Add(processToAdd);
-
-            //NON-SPECIFIC
-            /*
+                        
             //Run TagIT to set the asset tag #
             processToAdd = new QAProcess("Start TagIT",
                                          "Running TagIT to set the asset tag #",
-                                         "\"\" \"C:\\Program Files\\Marimba\\AddOns\\TagIT.exe\"");
+                                         @"C:\Program Files\Marimba\AddOns\TagIT.exe");
             ProcessQueue.Add(processToAdd);
-            /*
+
             //initialize the Lync process with the standard part, then find the correct year case and add the correct .exe,
             //  while pinning the correct link on the taskbar.
             processToAdd = new QAProcess("Start Lync",
@@ -50,69 +48,95 @@ namespace Quality_Assurance_and_Setup {
             switch (OfficeVersion) {
                 case 2013:
                 case 2016:
-                    processToAdd.Script = "lync.exe";
+                    processToAdd.App = "lync.exe";
                     break;
                 default: // 2007 or 2010
-                    processToAdd.Script = "communicator.exe";
+                    processToAdd.App = "communicator.exe";
                     break;
-                
             }
             ProcessQueue.Add(processToAdd);
-            /*
+
             //the rest of the processes have the basic idea laid out in the Description line
-            processToAdd = new QAProcess("Run repair on IE settings",
-                                         "Running repairs on the IE settings, just to verify they are set to the P&G defaults", //description
-                                         "wscript.exe C:\\swsetup\\IEProductivityPack\\IEHealing\\IEHealing.vbs");              //script
+            processToAdd = new QAProcess("Run repair on IE settings",                                                               //name
+                                         "Running repairs on the IE settings, just to verify they are set to the P&G defaults",     //description
+                                         "wscript.exe",                                                                             //application
+                                         @"C:\swsetup\IEProductivityPack\IEHealing\IEHealing.vbs");                                 //argument
             ProcessQueue.Add(processToAdd);
-            
+
             processToAdd = new QAProcess("Run Channel Viewer",
                                          "Running Channel Viewer to verify installed apps and fix failed/missing apps",
-                                         "wscript.exe C:\\HP\\Scripts\\StartChannelViewer.VBS");
+                                         "wscript.exe", 
+                                         @"C:\HP\Scripts\StartChannelViewer.VBS");
             ProcessQueue.Add(processToAdd);
-            
+
             processToAdd = new QAProcess("Open MPS Portal",
                                          "Running IE and navigating to the MPS Portal to install the default printer",
-                                         "iexplore.exe http://mpsportal.pg.com");
+                                         "http://mpsportal.pg.com");
             ProcessQueue.Add(processToAdd);
-            
+
             processToAdd = new QAProcess("Open Certificate Manager",
                                          "Opening the Certificate Manager to verify that the T# certificate is downloaded, for the VPN",
                                          "certmgr.msc");
             ProcessQueue.Add(processToAdd);
             
-            processToAdd = new QAProcess("Open Excel",
-                                         "Opening a blank Macro-Enabled Worksheet to preemptively fix an issue with opening other Excel Workbooks",
-                                         "excel.exe /m");
-            ProcessQueue.Add(processToAdd);
+            ProcessQueue.Add(AddExcelProcess());
             
-            processToAdd = new QAProcess("Open Outlook",
-                                         "Opening Outlook to complete Synchronization of the inbox and add the user's archives, if required",
-                                         "outlook.exe");
-            ProcessQueue.Add(processToAdd);
-            
-            processToAdd = new QAProcess("Run all pending Tuner updates",
-                                         "Running all pending updates through the tuner",
-                                         "C:\\Windows\\System32\\TuneUp\\TuneUp.exe /RunNowAll");
-            ProcessQueue.Add(processToAdd);
-            
-            processToAdd = new QAProcess("Open Old Printer Information.txt",
-                                         "Opening the Old Printer Information file for getting the user's default printer information",
-                                         "notepad.exe C:\\Users\\Public\\Desktop\\Printer Info\\Old Printer Information.txt");
-            ProcessQueue.Add(processToAdd);
+            ProcessQueue.Add(AddOutlookProcess());
 
-            string userDocs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            processToAdd = new QAProcess("Open documents folder",
-                                         "Opening the documents folder to verify that the user's files transferred over from the old PC",
-                                         "explorer.exe " + userDocs);
-            ProcessQueue.Add(processToAdd);
-            */
+            ProcessQueue.Add(AddTuneUpProcess());
+            
+            ProcessQueue.Add(AddPrinterProcess());
+            
+            ProcessQueue.Add(AddDocumentsProcess());
+        }
+
+        public QAProcess AddExcelProcess() {
+            return new QAProcess("Open Excel",
+                                 "Opening a blank Macro-Enabled Worksheet to preemptively fix an issue with opening other Excel Workbooks",
+                                 "excel.exe",
+                                 "/m");
+        }
+
+        public QAProcess AddOutlookProcess() {
+            return new QAProcess("Open Outlook",
+                                 "Opening Outlook to complete Synchronization of the inbox and add the user's archives, if required",
+                                 "outlook.exe");
+        }
+
+        public QAProcess AddTuneUpProcess() {
+            return new QAProcess("Run all pending Tuner updates",
+                                 "Running all pending updates through the tuner",
+                                 @"C:\Windows\System32\TuneUp\TuneUp.exe",
+                                 "/RunNowAll");
+        }
+
+        public QAProcess AddPrinterProcess() {
+            return new QAProcess("Open Old Printer Information.txt",
+                                 "Opening the Old Printer Information file for getting the user's default printer information",
+                                 "notepad.exe",
+                                 @"C:\Users\Public\Desktop\Printer Info\Old Printer Information.txt");
+        }
+
+        public QAProcess AddDocumentsProcess() {
+            return new QAProcess("Open documents folder",
+                                 "Opening the documents folder to verify that the user's files transferred over from the old PC",
+                                 "explorer.exe",
+                                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
         }
 
         public void ExecuteQueue(MainWindow siht) {
             foreach (QAProcess QAp in ProcessQueue) {
-                siht.PrintLine(QAp.RunScript());
+                siht.PrintLine(QAp.Run());
             }
 
+            AddVPNLinkToDesktop(siht);
+
+            PinLyncIconToTaskbar(siht);
+            
+            siht.PrintLine("QA Process COMPLETED!");
+        }
+
+        private void AddVPNLinkToDesktop(MainWindow siht) {
             siht.PrintLine("Adding Pulse Secure shortcut to the desktop.");
             object shDesktop = (object)"Desktop";
             WshShell shell = new WshShell();
@@ -131,7 +155,9 @@ namespace Quality_Assurance_and_Setup {
                 shortcut.WorkingDirectory = "C:\\Program Files (x86)\\Common Files\\Juniper Networks\\JamUI";
             }
             shortcut.Save();
+        }
 
+        private void PinLyncIconToTaskbar(MainWindow siht) {
             siht.PrintLine("Pinning Lync shortcut to the taskbar.");
             string linkPath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\";
             switch (OfficeVersion) {

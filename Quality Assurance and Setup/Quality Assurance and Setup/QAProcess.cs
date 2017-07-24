@@ -5,24 +5,36 @@ namespace Quality_Assurance_and_Setup {
     public class QAProcess {
         public string ProccessName { get; set; }
         public string Description { get; set; }
-        public string Script { get; set; }
-        
+        public string App { get; set; }
+        public string Arguments { get; set; }
+
         public QAProcess(string name, string description) {
             ProccessName = name;
             Description = description;
         }
 
-        public QAProcess(string name, string description, string script) {
+        public QAProcess(string name, string description, string app) {
             ProccessName = name;
             Description = description;
-            Script = script;
+            App = app;
         }
 
-        public string RunScript() {
+        public QAProcess(string name, string description, string app, string arguments) {
+            ProccessName = name;
+            Description = description;
+            App = app;
+            Arguments = arguments;
+        }
+
+        public string Run() {
             try {
-                Process.Start(Script);
+                //Process.Start(Script);
+                Process p = new Process();
+                p.StartInfo.FileName = App;
+                p.StartInfo.Arguments = Arguments;
+                p.Start();
                 return Description;
-            } catch (Exception e){
+            } catch (Exception e) {
                 return Description + Environment.NewLine + "Error! - " + e.Message;
             }
         }
