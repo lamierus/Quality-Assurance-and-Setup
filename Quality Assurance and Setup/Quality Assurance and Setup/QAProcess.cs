@@ -28,7 +28,6 @@ namespace Quality_Assurance_and_Setup {
 
         public string Run() {
             try {
-                //Process.Start(Script);
                 Process p = new Process();
                 p.StartInfo.FileName = App;
                 p.StartInfo.Arguments = Arguments;
