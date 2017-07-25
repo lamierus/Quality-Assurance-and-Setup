@@ -17,7 +17,7 @@ namespace Quality_Assurance_and_Setup {
             X64 = is64Bit;
             OfficeVersion = version;
             TypeOfQA = QAtoPerform;
-            if (TypeOfQA == QAType.Customer)
+            if (TypeOfQA == QAType.Customer && true)
                 InitializeFullCustomerQueue();
         }
 
