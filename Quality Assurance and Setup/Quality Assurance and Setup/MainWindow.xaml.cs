@@ -107,5 +107,9 @@ namespace Quality_Assurance_and_Setup {
                 QAQueue.ExecuteQueue(this);
             }
         }
+
+        private void btnCustomize_Click(object sender, RoutedEventArgs e) {
+
+        }
     }
 }
