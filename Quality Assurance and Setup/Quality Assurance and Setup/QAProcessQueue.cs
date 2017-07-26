@@ -12,42 +12,80 @@ namespace Quality_Assurance_and_Setup {
         public bool X64 { get;}
         public int OfficeVersion { get; }
         public QAType TypeOfQA { get;}
+        public bool FullQueue { get; }
         
-        public QAProcessQueue(bool is64Bit, int version, QAType QAtoPerform) {
+        public QAProcessQueue(bool is64Bit, int version, QAType QAtoPerform, bool initializeFullQueue = true) {
             X64 = is64Bit;
             OfficeVersion = version;
             TypeOfQA = QAtoPerform;
-            if (TypeOfQA == QAType.Customer && true)
+            FullQueue = initializeFullQueue;
+            if (TypeOfQA == QAType.Customer && FullQueue)
                 InitializeFullCustomerQueue();
+            else if (TypeOfQA == QAType.Loaner && FullQueue)
+                InitializeFullLoanerQueue();
+            else if (TypeOfQA == QAType.Kiosk && FullQueue) { }
+                //InitializeFullCustomerQueue();
+            else { }
+                //InitializeQueue();
         }
 
         private void InitializeFullCustomerQueue() {
-            ProcessQueue.Add(AddVPN());
+            ProcessQueue.Add(ShowVPN());
             
-            ProcessQueue.Add(AddTagIT());
+            ProcessQueue.Add(RunTagIT());
 
-            ProcessQueue.Add(AddOffice());
+            ProcessQueue.Add(RunLync());
             
-            ProcessQueue.Add(AddRepairIE());
+            ProcessQueue.Add(RepairIESettings());
             
-            ProcessQueue.Add(AddChannelViewer());
+            ProcessQueue.Add(OpenChannelViewer());
 
-            ProcessQueue.Add(AddMPSPortal());
+            ProcessQueue.Add(OpenMPSPortal());
 
-            ProcessQueue.Add(AddCertificateManager());
+            ProcessQueue.Add(OpenCertificateManager());
             
-            ProcessQueue.Add(AddExcel());
+            ProcessQueue.Add(OpenExcel());
             
-            ProcessQueue.Add(AddOutlook());
+            ProcessQueue.Add(OpenOutlook());
 
-            ProcessQueue.Add(AddTuneUp());
+            ProcessQueue.Add(RunTuneUp());
             
-            ProcessQueue.Add(AddPrinter());
+            ProcessQueue.Add(OpenPrinterDoc());
             
-            ProcessQueue.Add(AddDocuments());
+            ProcessQueue.Add(OpenDocumentsFolder());
         }
 
-        public QAProcess AddVPN() {
+        private void InitializeFullLoanerQueue() {
+            //ProcessQueue.Add(RunTagIT());
+            
+            //ProcessQueue.Add(OpenChannelViewer());
+
+            //ProcessQueue.Add(OpenExcel());
+
+            //ProcessQueue.Add(RunTuneUp());
+
+            //ProcessQueue.Add(RemoveOutlook());
+
+            //PublicWebmailLink();
+
+            //PublicVPNLink();
+
+            PublicOfficeLink();
+        }
+
+        public void ExecuteQueue(MainWindow siht) {
+            foreach (QAProcess QAp in ProcessQueue) {
+                siht.PrintLine(QAp.Run());
+            }
+
+            AddVPNLinkToDesktop(siht);
+
+            PinLyncIconToTaskbar(siht);
+
+            siht.PrintLine("QA Process COMPLETED!");
+        }
+
+        private QAProcess ShowVPN() {
             QAProcess process = new QAProcess("Start VPN",
                                               "Starting the VPN software for testing purposes");
             if (!X64) {
@@ -62,14 +100,14 @@ namespace Quality_Assurance_and_Setup {
             return process;
         }
 
-        public QAProcess AddTagIT() {
+        private QAProcess RunTagIT() {
             //Run TagIT to set the asset tag #
             return new QAProcess("Start TagIT",
                                  "Running TagIT to set the asset tag #",
                                  @"C:\Program Files\Marimba\AddOns\TagIT.exe");
         }
 
-        public QAProcess AddOffice() {
+        private QAProcess RunLync() {
             //initialize the Lync process with the standard part, then find the correct year case and add the correct .exe
             QAProcess process = new QAProcess("Start Lync",
                                               "Starting up the Lync program on the target PC, to verify that it is functioning");
@@ -85,76 +123,102 @@ namespace Quality_Assurance_and_Setup {
             return process;
         }
 
-        public QAProcess AddRepairIE() {
+        private QAProcess RepairIESettings() {
             return new QAProcess("Run repair on IE settings",                                                               //name
                                  "Running repairs on the IE settings, just to verify they are set to the P&G defaults",     //description
                                  "wscript.exe",                                                                             //application
                                  @"C:\swsetup\IEProductivityPack\IEHealing\IEHealing.vbs");                                 //argument
         }
 
-        public QAProcess AddChannelViewer() {
+        private QAProcess OpenChannelViewer() {
             return new QAProcess("Run Channel Viewer",
                                  "Running Channel Viewer to verify installed apps and fix failed/missing apps",
                                  "wscript.exe",
                                  @"C:\HP\Scripts\StartChannelViewer.VBS");
         }
 
-        public QAProcess AddMPSPortal() {
+        private QAProcess OpenMPSPortal() {
             return new QAProcess("Open MPS Portal",
                                  "Running IE and navigating to the MPS Portal to install the default printer",
                                  "http://mpsportal.pg.com");
         }
 
-        public QAProcess AddCertificateManager() {
+        private QAProcess OpenCertificateManager() {
             return new QAProcess("Open Certificate Manager",
                                  "Opening the Certificate Manager to verify that the T# certificate is downloaded, for the VPN",
                                  "certmgr.msc");
         }
 
-        public QAProcess AddExcel() {
+        private QAProcess OpenExcel() {
             return new QAProcess("Open Excel",
                                  "Opening a blank Macro-Enabled Worksheet to preemptively fix an issue with opening other Excel Workbooks",
                                  "excel.exe",
                                  "/m");
         }
 
-        public QAProcess AddOutlook() {
+        private QAProcess OpenOutlook() {
             return new QAProcess("Open Outlook",
                                  "Opening Outlook to complete Synchronization of the inbox and add the user's archives, if required",
                                  "outlook.exe");
         }
 
-        public QAProcess AddTuneUp() {
+        private QAProcess RunTuneUp() {
             return new QAProcess("Run all pending Tuner updates",
                                  "Running all pending updates through the tuner",
                                  @"C:\Windows\System32\TuneUp\TuneUp.exe",
                                  "/RunNowAll");
         }
 
-        public QAProcess AddPrinter() {
+        private QAProcess OpenPrinterDoc() {
             return new QAProcess("Open Old Printer Information.txt",
                                  "Opening the Old Printer Information file for getting the user's default printer information",
                                  "notepad.exe",
                                  @"C:\Users\Public\Desktop\Printer Info\Old Printer Information.txt");
         }
 
-        public QAProcess AddDocuments() {
+        private QAProcess OpenDocumentsFolder() {
             return new QAProcess("Open documents folder",
                                  "Opening the documents folder to verify that the user's files transferred over from the old PC",
                                  "explorer.exe",
                                  Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
         }
 
-        public void ExecuteQueue(MainWindow siht) {
-            foreach (QAProcess QAp in ProcessQueue) {
-                siht.PrintLine(QAp.Run());
-            }
+        private QAProcess RemoveOutlook() {
+            return new QAProcess();
+        }
 
-            AddVPNLinkToDesktop(siht);
-
-            PinLyncIconToTaskbar(siht);
+        private void PublicOfficeLink() {
+            //object shDesktop = "Desktop";
+            WshShell shell = new WshShell();
             
-            siht.PrintLine("QA Process COMPLETED!");
+            string shortcutLocation = Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory) + "\\Office Portal.url";
+            WshURLShortcut shortcut = (WshURLShortcut)shell.CreateShortcut(shortcutLocation);
+            shortcut.TargetPath = "http://portal.office.com";
+            shortcut.Save();
+        }
+
+        private QAProcess PublicVPNLink() {
+            return new QAProcess();
+        }
+
+        private QAProcess PublicWebmailLink() {
+            return new QAProcess();
+        }
+
+        private QAProcess ITAccessLink() {
+            return new QAProcess();
+        }
+
+        private QAProcess ITSolutionsLink() {
+            return new QAProcess();
+        }
+
+        private QAProcess GuestWiFiLink() {
+            return new QAProcess();
+        }
+
+        private QAProcess EformsLink() {
+            return new QAProcess();
         }
 
         private void AddVPNLinkToDesktop(MainWindow siht) {

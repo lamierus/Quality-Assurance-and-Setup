@@ -8,6 +8,8 @@ namespace Quality_Assurance_and_Setup {
         public string App { get; set; }
         public string Arguments { get; set; }
 
+        public QAProcess() { }
+
         public QAProcess(string name, string description) {
             ProccessName = name;
             Description = description;

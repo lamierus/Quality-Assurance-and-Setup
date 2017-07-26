@@ -9,5 +9,6 @@ namespace Quality_Assurance_and_Setup {
         Customer = 0,
         Loaner = 1,
         Kiosk = 2
+        
     }
 }
