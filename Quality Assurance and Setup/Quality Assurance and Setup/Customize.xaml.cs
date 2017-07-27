@@ -16,7 +16,7 @@ namespace Quality_Assurance_and_Setup {
     /// Interaction logic for Customize.xaml
     /// </summary>
     public partial class Customize : Window {
-        public Customize() {
+        public Customize(ref QAProcessQueue QAQueue) {
             InitializeComponent();
         }
     }

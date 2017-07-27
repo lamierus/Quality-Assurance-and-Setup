@@ -5,12 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Quality_Assurance_and_Setup"
         mc:Ignorable="d"
-        Title="Customize" Height="500" Width="400">
+        Title="Customize" Height="500" Width="400" MinWidth="400" MinHeight="500" MaxWidth="400" MaxHeight="500" ScrollViewer.VerticalScrollBarVisibility="Disabled">
     <Grid>
         <Button x:Name="btnSave" Content="Save" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" RenderTransformOrigin="1.187,21.05" Margin="50,439,0,0"/>
         <Button x:Name="btnCancel" Content="Cancel" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" RenderTransformOrigin="1.187,21.05" Margin="270,439,0,0"/>
         <Button x:Name="btnReset" Content="Reset" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="163,439,0,0"/>
-        <DataGrid HorizontalAlignment="Left" Height="387" VerticalAlignment="Top" Width="325" Margin="35,35,0,0"/>
+        <DataGrid HorizontalAlignment="Left" Height="385" VerticalAlignment="Top" Width="325" Margin="35,35,0,0"/>
 
     </Grid>
 </Window>

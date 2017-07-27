@@ -2,6 +2,7 @@
 using Shell32;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,12 +22,11 @@ namespace Quality_Assurance_and_Setup {
             FullQueue = initializeFullQueue;
             if (TypeOfQA == QAType.Customer && FullQueue)
                 InitializeFullCustomerQueue();
-            else if (TypeOfQA == QAType.Loaner && FullQueue)
-                InitializeFullLoanerQueue();
-            else if (TypeOfQA == QAType.Kiosk && FullQueue) { }
-                //InitializeFullCustomerQueue();
-            else { }
+            else if ((TypeOfQA == QAType.Loaner || TypeOfQA == QAType.Kiosk) && FullQueue)
+                InitializeFullOtherQueue();
+            else {
                 //InitializeQueue();
+            }
         }
 
         private void InitializeFullCustomerQueue() {
@@ -55,22 +55,16 @@ namespace Quality_Assurance_and_Setup {
             ProcessQueue.Add(OpenDocumentsFolder());
         }
 
-        private void InitializeFullLoanerQueue() {
-            //ProcessQueue.Add(RunTagIT());
+        private void InitializeFullOtherQueue() {
+            ProcessQueue.Add(RunTagIT());
             
-            //ProcessQueue.Add(OpenChannelViewer());
+            ProcessQueue.Add(OpenChannelViewer());
 
-            //ProcessQueue.Add(OpenExcel());
+            ProcessQueue.Add(OpenExcel());
 
-            //ProcessQueue.Add(RunTuneUp());
+            ProcessQueue.Add(RunTuneUp());
 
-            //ProcessQueue.Add(RemoveOutlook());
-
-            //PublicWebmailLink();
-
-            //PublicVPNLink();
-
-            PublicOfficeLink();
+            ProcessQueue.Add(RemoveOutlook());
         }
 
         public void ExecuteQueue(MainWindow siht) {
@@ -78,11 +72,43 @@ namespace Quality_Assurance_and_Setup {
                 siht.PrintLine(QAp.Run());
             }
 
+            if (TypeOfQA == QAType.Customer) {
+                CompleteCustomerQueue(siht);
+            }else if (TypeOfQA == QAType.Loaner) {
+                CompleteLoanerQueue(siht);
+            }else {
+                CompleteKioskQueue(siht);
+            }
+            
+            siht.PrintLine("QA Process COMPLETED!");
+        }
+
+        private void CompleteCustomerQueue(MainWindow siht) {
             AddVPNLinkToDesktop(siht);
 
             PinLyncIconToTaskbar(siht);
+        }
 
-            siht.PrintLine("QA Process COMPLETED!");
+        private void CompleteLoanerQueue(MainWindow siht) {
+            WebmailLink(siht);
+
+            AddVPNLinkToPublicDesktop(siht);
+
+            OfficeLink(siht);
+        }
+
+        private void CompleteKioskQueue(MainWindow siht) {
+            WebmailLink(siht);
+
+            OfficeLink(siht);
+
+            ITAccessLink(siht);
+
+            ITSolutionsLink(siht);
+
+            GuestWiFiLink(siht);
+
+            EformsLink(siht);
         }
 
         private QAProcess ShowVPN() {
@@ -184,49 +210,67 @@ namespace Quality_Assurance_and_Setup {
         }
 
         private QAProcess RemoveOutlook() {
-            return new QAProcess();
+            return new QAProcess("Remove Outlook",
+                                 "Opening the Control Panel so Outlook can be removed from the installed software on the PC",
+                                 "control",
+                                 "appwiz.cpl");
         }
 
-        private void PublicOfficeLink() {
-            //object shDesktop = "Desktop";
+        private void AddVPNLinkToPublicDesktop(MainWindow siht) {
+            siht.PrintLine("Adding Pulse Secure shortcut to the Public Desktop.");
             WshShell shell = new WshShell();
-            
-            string shortcutLocation = Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory) + "\\Office Portal.url";
-            WshURLShortcut shortcut = (WshURLShortcut)shell.CreateShortcut(shortcutLocation);
-            shortcut.TargetPath = "http://portal.office.com";
+            string shortcutLocation = Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory) + "\\Pulse Secure.lnk";
+            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutLocation);
+            shortcut.Arguments = "-show";
+            if (!X64) {
+                //32-bit specific
+                //setting all of the path information for the VPN link to be placed on the desktop
+                shortcut.TargetPath = "C:\\Program Files\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe";
+                shortcut.WorkingDirectory = "C:\\Program Files\\Common Files\\Juniper Networks\\JamUI";
+            } else {
+                //64-bit specific
+                //setting all of the path information for the VPN link to be placed on the desktop
+                shortcut.TargetPath = "C:\\Program Files (x86)\\Common Files\\Juniper Networks\\JamUI\\Pulse.exe";
+                shortcut.WorkingDirectory = "C:\\Program Files (x86)\\Common Files\\Juniper Networks\\JamUI";
+            }
             shortcut.Save();
         }
 
-        private QAProcess PublicVPNLink() {
-            return new QAProcess();
+        private void OfficeLink(MainWindow siht) {
+            siht.PrintLine("Adding Office Portal Link to the Public Desktop.");
+            urlShortcutToPublicDesktop("Office Portal", "http://portal.office.com");
         }
 
-        private QAProcess PublicWebmailLink() {
-            return new QAProcess();
+        private void WebmailLink(MainWindow siht) {
+            siht.PrintLine("Adding P&G Webmail Link to the Public Desktop.");
+            urlShortcutToPublicDesktop("P&G Webmail", "http://webmail.pg.com");
         }
 
-        private QAProcess ITAccessLink() {
-            return new QAProcess();
+        private void ITAccessLink(MainWindow siht) {
+            siht.PrintLine("Adding IT Access Link to the Public Desktop.");
+            urlShortcutToPublicDesktop("IT Access", "http://itaccess.pg.com");
         }
 
-        private QAProcess ITSolutionsLink() {
-            return new QAProcess();
+        private void ITSolutionsLink(MainWindow siht) {
+            siht.PrintLine("Adding ITSolutions Link to the Public Desktop.");
+            urlShortcutToPublicDesktop("IT Solutions", "http://itsolutions.pg.com");
         }
 
-        private QAProcess GuestWiFiLink() {
-            return new QAProcess();
+        private void GuestWiFiLink(MainWindow siht) {
+            siht.PrintLine("Adding Guest Wi-Fi Link to the Public Desktop.");
+            urlShortcutToPublicDesktop("Guest Wi-Fi", "http://guest.pg.com");
         }
 
-        private QAProcess EformsLink() {
-            return new QAProcess();
+        private void EformsLink(MainWindow siht) {
+            siht.PrintLine("Adding Eforms Link to the Public Desktop.");
+            urlShortcutToPublicDesktop("IT Services Catalog", "https://pgglobalenterprise.service-now.com/ITSM_Portal/home.do");
         }
 
         private void AddVPNLinkToDesktop(MainWindow siht) {
             siht.PrintLine("Adding Pulse Secure shortcut to the desktop.");
-            object shDesktop = (object)"Desktop";
             WshShell shell = new WshShell();
-            string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + "\\Pulse Secure.lnk";
-            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
+            string shortcutLocation = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory) + "\\Pulse Secure.lnk";
+            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutLocation);
             shortcut.Arguments = "-show";
             if (!X64) {
                 //32-bit specific
@@ -273,7 +317,7 @@ namespace Quality_Assurance_and_Setup {
 
         private static void TaskbarPinUnpin(string filePath, string fileName, bool pin, MainWindow siht) {
             if (!System.IO.File.Exists(filePath + fileName)) {
-                throw new System.IO.FileNotFoundException(filePath + fileName);
+                throw new FileNotFoundException(filePath + fileName);
             }
             
             // create the shell application object
@@ -292,6 +336,16 @@ namespace Quality_Assurance_and_Setup {
                 }
             }
             shellApplication = null;
+        }
+
+        private void urlShortcutToPublicDesktop(string linkName, string linkUrl) {
+            string deskDir = Environment.GetFolderPath(Environment.SpecialFolder.CommonDesktopDirectory);
+
+            using (StreamWriter writer = new StreamWriter(deskDir + "\\" + linkName + ".url")) {
+                writer.WriteLine("[InternetShortcut]");
+                writer.WriteLine("URL=" + linkUrl);
+                writer.Flush();
+            }
         }
     }
 }

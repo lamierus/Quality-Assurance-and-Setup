@@ -95,7 +95,11 @@ namespace Quality_Assurance_and_Setup {
         }
 
         public void PrintLine(string textToPrint) {
-            tboxOutput.Text += textToPrint + Environment.NewLine;
+            tboxOutput.AppendText(textToPrint + Environment.NewLine);
+            tboxOutput.Focus();
+            tboxOutput.CaretIndex = tboxOutput.Text.Length;
+            tboxOutput.ScrollToEnd();
+            //tboxOutput.Text += textToPrint + Environment.NewLine;
         }
 
         private void BTNBeginProcess_Click(object sender, RoutedEventArgs e) {
@@ -109,7 +113,8 @@ namespace Quality_Assurance_and_Setup {
         }
 
         private void btnCustomize_Click(object sender, RoutedEventArgs e) {
-
+            Customize CustomizeWindow = new Customize(ref QAQueue);
+            CustomizeWindow.ShowDialog();
         }
     }
 }
