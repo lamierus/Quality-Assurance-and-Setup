@@ -5,8 +5,8 @@ namespace Quality_Assurance_and_Setup {
     public class QAProcess {
         public string ProccessName { get; set; }
         public string Description { get; set; }
-        public string App { get; set; }
-        public string Arguments { get; set; }
+        private string App;
+        private string Arguments;
 
         public QAProcess() { }
 
@@ -25,6 +25,14 @@ namespace Quality_Assurance_and_Setup {
             ProccessName = name;
             Description = description;
             App = app;
+            Arguments = arguments;
+        }
+
+        public void SetAppString(string app) {
+            App = app;
+        }
+
+        public void SetArguments(string arguments) {
             Arguments = arguments;
         }
 

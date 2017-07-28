@@ -41,7 +41,11 @@ namespace Quality_Assurance_and_Setup {
             // as well as set the content of the label to the found version string
             lblOfficeVersion.Content = OfficeVersion = FindOfficeVersion();
             //extract just the year of the office version from the string as a whole.
-            OfficeVersion = OfficeVersion.Substring(OfficeVersion.IndexOf('2'));
+            try {
+                OfficeVersion = OfficeVersion.Substring(OfficeVersion.IndexOf('2'));
+            } catch {
+                OfficeVersion = "0";
+            }
             rbCustomerPC.IsChecked = true;
         }
         
@@ -55,7 +59,14 @@ namespace Quality_Assurance_and_Setup {
                 IsOfficeInstalled = true;
             }
 
-            string oVersion = key.GetValue("Path").ToString();
+            string oVersion = "";
+            try {
+                oVersion = key.GetValue("Path").ToString();
+            } catch {
+                PrintLine("Warning!" + Environment.NewLine + "Office NOT Installed!");
+                //Warning MissingOfficeWarning = new Warning("Warning!" + Environment.NewLine + "Office NOT Installed!");
+                //MissingOfficeWarning.ShowDialog();
+            }
             if (oVersion.Contains("Office12")) {
                 returnString = "Microsoft Office 2007";
             } 

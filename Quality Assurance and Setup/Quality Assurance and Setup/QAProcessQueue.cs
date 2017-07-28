@@ -2,6 +2,7 @@
 using Shell32;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,13 +10,14 @@ using System.Threading.Tasks;
 
 namespace Quality_Assurance_and_Setup {
     public class QAProcessQueue {
-        private List<QAProcess> ProcessQueue = new List<QAProcess>();
-        public bool X64 { get;}
+        public BindingList<QAProcess> ProcessQueue { get; }
+        public bool X64 { get; }
         public int OfficeVersion { get; }
-        public QAType TypeOfQA { get;}
+        public QAType TypeOfQA { get; }
         public bool FullQueue { get; }
         
         public QAProcessQueue(bool is64Bit, int version, QAType QAtoPerform, bool initializeFullQueue = true) {
+            ProcessQueue = new BindingList<QAProcess>();
             X64 = is64Bit;
             OfficeVersion = version;
             TypeOfQA = QAtoPerform;
@@ -116,12 +118,12 @@ namespace Quality_Assurance_and_Setup {
                                               "Starting the VPN software for testing purposes");
             if (!X64) {
                 //32-bit specific
-                process.App = @"C:\Program Files\Common Files\Juniper Networks\JamUI\Pulse.exe";
-                process.Arguments = "-show";
+                process.SetAppString(@"C:\Program Files\Common Files\Juniper Networks\JamUI\Pulse.exe");
+                process.SetArguments("-show");
             } else {
                 //64-bit specific
-                process.App = @"C:\Program Files (x86)\Common Files\Juniper Networks\JamUI\Pulse.exe";
-                process.Arguments = "-show";
+                process.SetAppString(@"C:\Program Files (x86)\Common Files\Juniper Networks\JamUI\Pulse.exe");
+                process.SetArguments("-show");
             }
             return process;
         }
@@ -140,10 +142,10 @@ namespace Quality_Assurance_and_Setup {
             switch (OfficeVersion) {
                 case 2013:
                 case 2016:
-                    process.App = "lync.exe";
+                    process.SetAppString("lync.exe");
                     break;
                 default: // 2007 or 2010
-                    process.App = "communicator.exe";
+                    process.SetAppString("communicator.exe");
                     break;
             }
             return process;

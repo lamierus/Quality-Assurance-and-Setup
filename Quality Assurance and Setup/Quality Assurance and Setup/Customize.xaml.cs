@@ -18,6 +18,7 @@ namespace Quality_Assurance_and_Setup {
     public partial class Customize : Window {
         public Customize(ref QAProcessQueue QAQueue) {
             InitializeComponent();
+            dgQueueComponents.ItemsSource = QAQueue.ProcessQueue;
         }
     }
 }

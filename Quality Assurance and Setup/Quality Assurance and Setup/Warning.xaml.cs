@@ -16,7 +16,7 @@ namespace Quality_Assurance_and_Setup {
     /// Interaction logic for Warning.xaml
     /// </summary>
     public partial class Warning : Window {
-        public Warning() {
+        public Warning(string message) {
             InitializeComponent();
         }
     }
