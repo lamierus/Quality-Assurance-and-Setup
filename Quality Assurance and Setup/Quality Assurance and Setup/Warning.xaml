@@ -5,8 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Quality_Assurance_and_Setup"
         mc:Ignorable="d"
-        Title="Warning" Height="300" Width="300">
+        Title="Warning" Height="200" Width="300" MinWidth="300" MinHeight="200" MaxWidth="300" MaxHeight="200" ScrollViewer.VerticalScrollBarVisibility="Disabled">
     <Grid>
-        
+        <TextBlock x:Name="WarningText"  HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Margin="10,10,0,0" Height="100" Width="272" FontWeight="Bold" FontSize="14" TextAlignment="Center"/>
+        <Button x:Name="btnContinue" Content="Continue" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="30,115,0,0" Click="btnContinue_Click"/>
+        <Button x:Name="btnCancel" Content="Cancel" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="188,115,0,0" Click="btnCancel_Click"/>
+
     </Grid>
 </Window>

@@ -16,9 +16,58 @@ namespace Quality_Assurance_and_Setup {
     /// Interaction logic for Customize.xaml
     /// </summary>
     public partial class Customize : Window {
-        public Customize(ref QAProcessQueue QAQueue) {
+        public QAProcessQueue ModifiedQueue;
+        public bool AddDesktopIcons = true;
+        private QAProcessQueue AvailableItems = new QAProcessQueue();
+        private QAProcessQueue UnmodifiedQueue;
+        private QAProcess DesktopIcons = new QAProcess("Add Desktop Icons",
+                                                       "Add icons to the desktop");
+
+        public Customize(QAProcessQueue QAQueue) {
             InitializeComponent();
-            dgQueueComponents.ItemsSource = QAQueue.ProcessQueue;
+            UnmodifiedQueue = QAQueue;
+            ResetQueue();
+            dgQueueComponents.ItemsSource = ModifiedQueue.ProcessQueue;
+            dgAvailableComponents.ItemsSource = AvailableItems.ProcessQueue;
+        }
+
+        private void btnAdd_Click(object sender, RoutedEventArgs e) {
+            QAProcess toAdd = (QAProcess)dgAvailableComponents.SelectedItem;
+            AvailableItems.RemoveFromQueue(toAdd);
+            ModifiedQueue.AddToQueue(toAdd);
+        }
+
+        private void btnRemove_Click(object sender, RoutedEventArgs e) {
+            QAProcess toRemove = (QAProcess)dgQueueComponents.SelectedItem;
+            ModifiedQueue.RemoveFromQueue(toRemove);
+            AvailableItems.AddToQueue(toRemove);
+        }
+
+        private void ResetQueue() {
+            ModifiedQueue = UnmodifiedQueue;
+            ModifiedQueue.AddToQueue(DesktopIcons);
+            AvailableItems.ClearQueue();
+        }
+
+        private void btnCancel_Click(object sender, RoutedEventArgs e) {
+            DialogResult = false;
+            ModifiedQueue = UnmodifiedQueue;
+            ModifiedQueue.RemoveFromQueue(DesktopIcons);
+            Close();
+        }
+
+        private void btnReset_Click(object sender, RoutedEventArgs e) {
+            ResetQueue();
+        }
+
+        private void btnSave_Click(object sender, RoutedEventArgs e) {
+            DialogResult = true;
+            if (!ModifiedQueue.Find(DesktopIcons)) {
+                AddDesktopIcons = false;
+            } else {
+                ModifiedQueue.RemoveFromQueue(DesktopIcons);
+            }
+            Close();
         }
     }
 }

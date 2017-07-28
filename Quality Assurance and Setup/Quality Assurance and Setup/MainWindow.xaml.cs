@@ -110,22 +110,26 @@ namespace Quality_Assurance_and_Setup {
             tboxOutput.Focus();
             tboxOutput.CaretIndex = tboxOutput.Text.Length;
             tboxOutput.ScrollToEnd();
-            //tboxOutput.Text += textToPrint + Environment.NewLine;
         }
 
         private void BTNBeginProcess_Click(object sender, RoutedEventArgs e) {
 
             if (!IsOfficeInstalled) {
                 //prompt user to start process to install office, possibly what version
-                IsOfficeInstalled = true;
-            } else {
-                QAQueue.ExecuteQueue(this);
+                var OfficeNotFound = new Warning("Warning!" + Environment.NewLine + "Office NOT Installed!");
+                if (OfficeNotFound.DialogResult == false) {
+                    return;
+                }
             }
+            QAQueue.ExecuteQueue(this);
         }
 
         private void btnCustomize_Click(object sender, RoutedEventArgs e) {
-            Customize CustomizeWindow = new Customize(ref QAQueue);
+            var CustomizeWindow = new Customize(QAQueue);
             CustomizeWindow.ShowDialog();
+            if (CustomizeWindow.DialogResult == true)
+                QAQueue = CustomizeWindow.ModifiedQueue;
+            QAQueue.DesktopIcons = CustomizeWindow.AddDesktopIcons;
         }
     }
 }

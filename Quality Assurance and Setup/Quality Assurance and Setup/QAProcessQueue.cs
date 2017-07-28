@@ -10,25 +10,44 @@ using System.Threading.Tasks;
 
 namespace Quality_Assurance_and_Setup {
     public class QAProcessQueue {
-        public BindingList<QAProcess> ProcessQueue { get; }
-        public bool X64 { get; }
-        public int OfficeVersion { get; }
-        public QAType TypeOfQA { get; }
-        public bool FullQueue { get; }
+        public BindingList<QAProcess> ProcessQueue = new BindingList<QAProcess>();
+        public bool X64 { get; set; }
+        public int OfficeVersion { get; set; }
+        public QAType TypeOfQA { get; set; }
+        public bool DesktopIcons { get; set; }
+
+        public QAProcessQueue() {
+
+        }
         
-        public QAProcessQueue(bool is64Bit, int version, QAType QAtoPerform, bool initializeFullQueue = true) {
-            ProcessQueue = new BindingList<QAProcess>();
+        public QAProcessQueue(bool is64Bit, int version, QAType QAtoPerform, bool addDesktopIcons = true) {
             X64 = is64Bit;
             OfficeVersion = version;
             TypeOfQA = QAtoPerform;
-            FullQueue = initializeFullQueue;
-            if (TypeOfQA == QAType.Customer && FullQueue)
+            DesktopIcons = addDesktopIcons;
+            if (TypeOfQA == QAType.Customer)// && FullQueue)
                 InitializeFullCustomerQueue();
-            else if ((TypeOfQA == QAType.Loaner || TypeOfQA == QAType.Kiosk) && FullQueue)
+            else //if ((TypeOfQA == QAType.Loaner || TypeOfQA == QAType.Kiosk) && FullQueue)
                 InitializeFullOtherQueue();
-            else {
-                //InitializeQueue();
+        }
+
+        public void AddToQueue(QAProcess toBeAdded) {
+            ProcessQueue.Add(toBeAdded);
+        } 
+
+        public void RemoveFromQueue(QAProcess toBeRemoved) {
+            ProcessQueue.Remove(toBeRemoved);
+        }
+
+        public bool Find(QAProcess processToFind) {
+            if (ProcessQueue.Contains(processToFind)) {
+                return true;
             }
+            return false;
+        }
+
+        public void ClearQueue() {
+            ProcessQueue.Clear();
         }
 
         private void InitializeFullCustomerQueue() {
@@ -74,12 +93,14 @@ namespace Quality_Assurance_and_Setup {
                 siht.PrintLine(QAp.Run());
             }
 
-            if (TypeOfQA == QAType.Customer) {
-                CompleteCustomerQueue(siht);
-            }else if (TypeOfQA == QAType.Loaner) {
-                CompleteLoanerQueue(siht);
-            }else {
-                CompleteKioskQueue(siht);
+            if (DesktopIcons) {
+                if (TypeOfQA == QAType.Customer) {
+                    CompleteCustomerQueue(siht);
+                } else if (TypeOfQA == QAType.Loaner) {
+                    CompleteLoanerQueue(siht);
+                } else {
+                    CompleteKioskQueue(siht);
+                }
             }
             
             siht.PrintLine("QA Process COMPLETED!");
@@ -92,9 +113,9 @@ namespace Quality_Assurance_and_Setup {
         }
 
         private void CompleteLoanerQueue(MainWindow siht) {
-            WebmailLink(siht);
-
             AddVPNLinkToPublicDesktop(siht);
+
+            WebmailLink(siht);
 
             OfficeLink(siht);
         }
@@ -173,20 +194,20 @@ namespace Quality_Assurance_and_Setup {
 
         private QAProcess OpenCertificateManager() {
             return new QAProcess("Open Certificate Manager",
-                                 "Opening the Certificate Manager to verify that the T# certificate is downloaded, for the VPN",
+                                 "Opening the Certificate Manager to verify that the T# certificate is created",
                                  "certmgr.msc");
         }
 
         private QAProcess OpenExcel() {
             return new QAProcess("Open Excel",
-                                 "Opening a blank Macro-Enabled Worksheet to preemptively fix an issue with opening other Excel Workbooks",
+                                 "Opening a blank Macro-Enabled Worksheet to fix an issue with opening other Excel Workbooks",
                                  "excel.exe",
                                  "/m");
         }
 
         private QAProcess OpenOutlook() {
             return new QAProcess("Open Outlook",
-                                 "Opening Outlook to complete Synchronization of the inbox and add the user's archives, if required",
+                                 "Opening Outlook to complete Synchronization of the inbox and add the user's archives",
                                  "outlook.exe");
         }
 
